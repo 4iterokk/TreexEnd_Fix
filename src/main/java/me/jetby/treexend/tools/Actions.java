@@ -1,0 +1,184 @@
+package me.jetby.treexend.tools;
+
+import me.jetby.treexend.Main;
+import me.jetby.treexend.tools.colorizer.Colorize;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Sound;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+
+import java.util.List;
+
+
+public class Actions {
+
+
+    public static void execute(Main plugin, Player sender, List<String> commands) {
+        executeWithDelay(plugin, sender, commands, 0);
+    }
+
+    private static void executeWithDelay(Main plugin, Player player, List<String> commands, int index) {
+        if (index >= commands.size()) return;
+
+        String command = commands.get(index);
+        String[] args = command.split(" ");
+        String withoutCMD = command.replace(args[0] + " ", "");
+
+        if (args[0].equalsIgnoreCase("[DELAY]")) {
+            int delayTicks = Integer.parseInt(args[1]);
+            plugin.getRunner().runLater(() -> executeWithDelay(plugin, player, commands, index + 1), delayTicks);
+            return;
+        }
+        switch (args[0].toUpperCase()) {
+            case "[MESSAGE]", "[MSG]", "[MESSAGE_ALL]": {
+                player.sendMessage(Colorize.hex(withoutCMD));
+                break;
+            }
+            case "[TELEPORT]", "[TP]": {
+                String[] parts = withoutCMD.split(" ");
+                if (parts.length == 4) {
+                    try {
+                        String worldName = parts[0];
+                        double x = Double.parseDouble(parts[1]);
+                        double y = Double.parseDouble(parts[2]);
+                        double z = Double.parseDouble(parts[3]);
+
+                        World world = Bukkit.getWorld(worldName);
+                        if (world == null) {
+                            Bukkit.getLogger().warning("Мир " + worldName + " не найден");
+                            break;
+                        }
+
+                        Location location = new Location(world, x, y, z);
+                        player.teleport(location);
+
+                    } catch (NumberFormatException e) {
+                        Bukkit.getLogger().warning("Ошибка парсинга координат");
+                        break;
+                    }
+                }
+                if (parts.length >= 6) {
+                    try {
+                        String worldName = parts[0];
+                        double x = Double.parseDouble(parts[1]);
+                        double y = Double.parseDouble(parts[2]);
+                        double z = Double.parseDouble(parts[3]);
+                        float yaw = Float.parseFloat(parts[4]);
+                        float pitch = Float.parseFloat(parts[5]);
+
+                        World world = Bukkit.getWorld(worldName);
+                        if (world == null) {
+                            Bukkit.getLogger().warning("Мир " + worldName + " не найден");
+                            break;
+                        }
+
+                        Location location = new Location(world, x, y, z, yaw, pitch);
+
+                        Bukkit.getScheduler().runTask(plugin, ()-> {
+                            player.teleport(location);
+                        });
+
+                    } catch (NumberFormatException e) {
+                        Bukkit.getLogger().warning("Ошибка парсинга координат");
+                        break;
+                    }
+                } else {
+                    Bukkit.getLogger().warning("Некорректные данные для телепорта");
+                    break;
+                }
+                break;
+            }
+            case "[PLAYER]": {
+                String finalWithoutCMD = withoutCMD;
+                Bukkit.getScheduler().runTask(plugin, ()-> {
+                    player.chat("/"+finalWithoutCMD.replace("%player%", player.getName()));
+                });
+
+                break;
+            }
+            case "[CONSOLE]": {
+                String finalWithoutCMD = withoutCMD;
+                Bukkit.getScheduler().runTask(plugin, ()-> {
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), Colorize.hex(finalWithoutCMD.replace("%player%", player.getName())));
+                });
+                break;
+            }
+            case "[ACTIONBAR]": {
+                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(Colorize.hex(withoutCMD
+                        .replace("%player%", player.getName()))));
+                break;
+            }
+            case "[SOUND]": {
+                float volume = 1.0f;
+                float pitch = 1.0f;
+                for (String arg : args) {
+                    if (arg.startsWith("-volume:")) {
+                        volume = Float.parseFloat(arg.replace("-volume:", ""));
+                        continue;
+                    }
+                    if (!arg.startsWith("-pitch:")) continue;
+                    pitch = Float.parseFloat(arg.replace("-pitch:", ""));
+                }
+                player.playSound(player.getLocation(), Sound.valueOf(args[1]), volume, pitch);
+                break;
+            }
+            case "[EFFECT]": {
+                int strength = 0;
+                int duration = 1;
+                for (String arg : args) {
+                    if (arg.startsWith("-strength:")) {
+                        strength = Integer.parseInt(arg.replace("-strength:", ""));
+                        continue;
+                    }
+                    if (!arg.startsWith("-duration:")) continue;
+                    duration = Integer.parseInt(arg.replace("-duration:", ""));
+                }
+                PotionEffectType effectType = PotionEffectType.getByName(args[1]);
+                if (effectType == null) {
+                    return;
+                }
+                if (player.hasPotionEffect(effectType)) {
+                    return;
+                }
+                player.addPotionEffect(new PotionEffect(effectType, duration * 20, strength));
+                break;
+            }
+            case "[TITLE]": {
+                String title = "";
+                String subTitle = "";
+                int fadeIn = 1;
+                int stay = 3;
+                int fadeOut = 1;
+                for (String arg : args) {
+                    if (arg.startsWith("-fadeIn:")) {
+                        fadeIn = Integer.parseInt(arg.replace("-fadeIn:", ""));
+                        withoutCMD = withoutCMD.replace(arg, "");
+                        continue;
+                    }
+                    if (arg.startsWith("-stay:")) {
+                        stay = Integer.parseInt(arg.replace("-stay:", ""));
+                        withoutCMD = withoutCMD.replace(arg, "");
+                        continue;
+                    }
+                    if (!arg.startsWith("-fadeOut:")) continue;
+                    fadeOut = Integer.parseInt(arg.replace("-fadeOut:", ""));
+                    withoutCMD = withoutCMD.replace(arg, "");
+                }
+                String[] message = Colorize.hex(withoutCMD).split(";");
+                if (message.length >= 1) {
+                    title = message[0];
+                    if (message.length >= 2) {
+                        subTitle = message[1];
+                    }
+                }
+                player.sendTitle(title, subTitle, fadeIn * 20, stay * 20, fadeOut * 20);
+            }
+        }
+        executeWithDelay(plugin, player, commands, index + 1);
+    }
+}

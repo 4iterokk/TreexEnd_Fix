@@ -1,0 +1,81 @@
+
+storage:
+  type: YAML # SQLITE, MYSQL, YAML
+  # данные ниже нужны если у вас type стоит на MYSQL
+  host: "localhost"
+  port: 3306
+  database: "treexend"
+  username: "root"
+  password: ""
+
+listeners:
+  dropOnQuit: true # Дропнуть на землю если игрок вышел с сервера
+  place: false # Может ли игрок поставить яйцо
+  glowOnDrop: true # подсвечивает яйцо если оно валяется на земле
+  teleportOnPortalJoin: false # телепортировать ли игрока на координаты из end-enter-teleport
+
+end-enter-teleport: 0;100;0;world # локацию куда телепортирует игроков, которые войдут в энде. Нужен teleportOnPortalJoin: true
+end-close-teleport: 0;100;0;world # локацию куда телепортирует игроков, которые находятся в энде.
+
+BossBars:
+  egg:
+    enable: true
+    title: "Осторожно, у вас яйцо дракона"
+  time_to_end:
+    enable: true
+    title: "&fЭнд закроется через &d{time} сек."
+
+trade-command: "egg-swap" # Команда на обмен яиц
+
+placeholder-top-format: "&dx: %x%, y: %y%, z: %z% (%amount%) &7шт"
+
+dragon-egg:
+  name: "&#FB0783Яйцо дракона"
+  glowing: false
+  lore:
+    - ""
+    - "&#FB0783&n◢&f В ваших руках самый ценный предмет."
+    - "&#FB0783◤&f Будьте с ним осторожнее!"
+    - ""
+    - "&#FB43F9Вот его особенности:"
+    - "&#FB0783● &fВ конце вайпа яйцо(а) можно"
+    - "  &fобменять на Сапфиры - &#FB0783/egg-swap"
+    - "  &fКурс обмена: &#FB07831 яйцо &f= &#FB07832500 сапфиров"
+    - "&#FB0783● &fПрятать яйца можно только"
+    - "&#FB0783  в обычном сундуке."
+    - "&#FB0783● &fНа спавне формируется топ,"
+    - "  &fпо спрятанным яйцам - &#FB0783/warp top"
+    - ""
+  prizes:
+    # Чтобы использовать математические символы, вам надо писать в скобках например: {10*10}
+    # Команда на получение награды /egg-swap
+    - "[CONSOLE] p give %player% {2500*%eggs_amount%}"
+    - "[MESSAGE] "
+    - "[MESSAGE] &aПоздравляем"
+    - "[MESSAGE] &fВ получили &a{2500*%eggs_amount%} токенов."
+    - "[MESSAGE] "
+
+messages:
+  dragonDamage:
+    messageDelay: 60 # В секундах. Каждые 60 секунд все увидят это сообщение, до тех пор пока дракон жив.
+    message:
+      - ""
+      - "Могущественный Дракон &#d27c33скоро будет поврежен, &fи всё"
+      - "благодаря этим воинам:"
+      - "&#ebcd35▪ 1 место &7- &#3dcde0%tend_damage_top_1_name% &7| &#d27c33%tend_damage_top_1_damage%"
+      - "&f▪ 2 место &7- &#3dcde0%tend_damage_top_2_name% &7| &#d27c33%tend_damage_top_2_damage%"
+      - "&#d27c33▪ 3 место &7- &#3dcde0%tend_damage_top_3_name% &7| &#d27c33%tend_damage_top_3_damage%"
+      - ""
+      - "Игрок, занявший первое место, &#ebcd35&lполучит Яйцо дракона."
+      - ""
+  endIsClose:
+    - "&fЭндер мир сейчас закрыт, возвращайтесь в &bвоскресенье в 16:00 &fпо МСК"
+  tradingIsDisabled:
+    - "&cСейчас вы не можете обменять яйца."
+  noEggs:
+    - "&cУ вас нету яиц дракона для получения приза!"
+  chestOnly:
+    - "Яйцо Дракона можно хранить только в сундуке."
+  portalIsBlocked:
+    - "&b▶ &fВ настоящий момент измерение закрыто."
+    - "&b Приходи в воскресенье в 16:00"

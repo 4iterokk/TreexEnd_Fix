@@ -1,0 +1,8 @@
+name: TreexEnd
+version: '${project.version}'
+main: me.jetby.treexend.Main
+api-version: '1.16'
+commands:
+  tend:
+    aliases:
+      - treexend
