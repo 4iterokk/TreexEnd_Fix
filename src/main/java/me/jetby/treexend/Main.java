@@ -9,6 +9,7 @@ import me.jetby.treexend.listeners.DragonEgg;
 import me.jetby.treexend.listeners.EndPortal;
 import me.jetby.treexend.listeners.EnderDragon;
 import me.jetby.treexend.tools.Event;
+import me.jetby.treexend.tools.Metrics;
 import me.jetby.treexend.tools.TreexEndExpansion;
 import me.jetby.treexend.tools.storage.Database;
 import me.jetby.treexend.tools.storage.StorageType;
@@ -43,6 +44,9 @@ public final class Main extends JavaPlugin {
     @Override
     public void onEnable() {
         saveDefaultConfig();
+
+        new Metrics(this, 25881);
+
         cfg = new Config(this);
         cfg.load();
         data = new Data(this);
