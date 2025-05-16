@@ -2,7 +2,6 @@ package me.jetby.treexend.tools;
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import me.jetby.treexend.Main;
-import me.jetby.treexend.listeners.EnderDragon;
 import me.jetby.treexend.tools.storage.StorageType;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;

@@ -10,8 +10,6 @@ import me.jetby.treexend.listeners.EndPortal;
 import me.jetby.treexend.listeners.EnderDragon;
 import me.jetby.treexend.tools.Event;
 import me.jetby.treexend.tools.TreexEndExpansion;
-import me.jetby.treexend.tools.colorizer.ColorizerType;
-import me.jetby.treexend.tools.colorizer.LegacyColorizer;
 import me.jetby.treexend.tools.storage.Database;
 import me.jetby.treexend.tools.storage.StorageType;
 import me.jetby.treexend.tools.storage.Yaml;

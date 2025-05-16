@@ -24,7 +24,7 @@ public class AdminCommands implements CommandExecutor, TabCompleter {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (sender.hasPermission("treexend.admin")) {
             if (args.length==0) {
-                sender.sendMessage(Colorize.hex("&d/tend open &7- &fРазрешить вход в портал Энда."));
+                sender.sendMessage(Colorize.hex("&d/tend open <время> &7- &fРазрешить вход в портал Энда."));
                 sender.sendMessage(Colorize.hex("&d/tend close &7- &fЗапретить вход в портал Энда."));
                 sender.sendMessage(Colorize.hex("&d/tend enableTrading &7- &fИгроки могут обменять яйца на приз."));
                 sender.sendMessage(Colorize.hex("&d/tend disableTrading &7- &fИгроки не могут обменять яйца на приз."));
