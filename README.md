@@ -11,3 +11,29 @@
 - Для этого идеально подойдёт плагин [EventDelay](https://spigotmc.ru/resources/eventdelay-luchshij-menedzher-iventov.2489/)
 
 Жду ваших рецензий и предложений.
+
+# Доп инфа
+```yaml
+####################################################################################################
+#
+# Commands
+# [MESSAGE] Send text to player
+# [PLAYER] Execute command on behalf of the player
+# [CONSOLE] Run command on behalf of console
+# [ACTIONBAR] Send text to player in actionbar
+# [SOUND] Play a sound for the player
+# [EFFECT] Give the player an effect
+# [TITLE] Send the player a title, to send a subtitle use the symbol ";"
+## For example: [TITLE] First;Second
+#
+####################################################################################################
+#
+# Placeholders
+# %tend_top_<число>% - Показывает то что в строке placeholder-top-format
+# %tend_top_<число>_coordinates% - Показывает координаты нужного топа
+# %tend_top_<число>_amount% - Показывает кол-во яиц нужного топа
+# %tend_damage_top_<число>_name% - Показывает ник игрока нужного топа по урону дракона
+# %tend_damage_top_<число>_damage% - Показывает урон нужного топа по урону дракона
+#
+####################################################################################################
+```
