@@ -22,6 +22,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandMap;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.defaults.BukkitCommand;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.lang.reflect.Field;
@@ -31,8 +32,8 @@ import java.util.Collections;
 @Getter
 public final class Main extends JavaPlugin {
 
-    private Config cfg;
-    private Data data;
+    private final Config cfg = new Config(this);
+    private final Data data = new Data(this);
     private final Runner runner = new BukkitRunner(this);
     private StorageType storageType;
     private TreexEndExpansion treexEndExpansion;
@@ -47,9 +48,9 @@ public final class Main extends JavaPlugin {
 
         new Metrics(this, 25881);
 
-        cfg = new Config(this);
-        cfg.load();
-        data = new Data(this);
+        final FileConfiguration configFile = cfg.getFile(getDataFolder().getAbsolutePath(), "config.yml");
+        cfg.load(configFile);
+
         data.load();
 
         event = new Event(this);
@@ -69,10 +70,11 @@ public final class Main extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new EndPortal(this), this);
         getServer().getPluginManager().registerEvents(new DragonEgg(this), this);
         getServer().getPluginManager().registerEvents(dragon, this);
-        registerCommand(cfg.getString("trade-command"), new TradeCommand(this));
+        registerCommand(cfg.getTradeCommand(), new TradeCommand(this));
     }
+
     public void loadStorage() {
-        if (cfg.getString("storage.type").equalsIgnoreCase("YAML")) {
+        if (cfg.getStorageType().equalsIgnoreCase("YAML")) {
             storageType = new Yaml(this);
         } else {
             try {

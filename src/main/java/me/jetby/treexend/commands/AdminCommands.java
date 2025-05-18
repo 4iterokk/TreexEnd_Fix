@@ -7,6 +7,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -16,7 +17,8 @@ import java.util.List;
 
 public class AdminCommands implements CommandExecutor, TabCompleter {
 
-    private final Main plugin;
+
+    final Main plugin;
     public AdminCommands(Main plugin) {
         this.plugin = plugin;
     }
@@ -40,15 +42,18 @@ public class AdminCommands implements CommandExecutor, TabCompleter {
 
             switch (args[0].toLowerCase()) {
                 case "reload": {
-                    if (plugin.getStorageType().cacheExist()) {
-                        plugin.getStorageType().save();
-                    }
-                    plugin.getCfg().load();
-                    plugin.loadStorage();
-                    plugin.getTaskManager().startDragonCheck();
-                    plugin.getTaskManager().startEggChecking();
-
-                    sender.sendMessage("Config reloaded.");
+                    plugin.getRunner().runAsync(() -> {
+                        plugin.reloadConfig();
+                        final FileConfiguration configFile = plugin.getCfg().getFile(String.valueOf(plugin.getDataFolder()), "config.yml");
+                        plugin.getCfg().load(configFile);
+                        if (plugin.getStorageType().cacheExist()) {
+                            plugin.getStorageType().save();
+                        }
+                        plugin.loadStorage();
+                        plugin.getTaskManager().startDragonCheck();
+                        plugin.getTaskManager().startEggChecking();
+                        sender.sendMessage("Config reloaded.");
+                    });
                     break;
                 }
                 case "open": {

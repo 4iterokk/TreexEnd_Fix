@@ -63,8 +63,7 @@ public class EnderDragon implements Listener {
     }
     @EventHandler
     public void onDamage(EntityDamageByEntityEvent e) {
-            if (e.getDamager() instanceof Player player) {
-                if (e.getEntity() instanceof org.bukkit.entity.EnderDragon) {
+            if (e.getDamager() instanceof Player player && e.getEntity() instanceof org.bukkit.entity.EnderDragon) {
                     Double damage;
                     if (!damages.containsKey(player.getUniqueId())) {
                         damages.put(player.getUniqueId(), e.getDamage());
@@ -73,7 +72,6 @@ public class EnderDragon implements Listener {
                         damages.replace(player.getUniqueId(), damage+e.getDamage());
                     }
                 }
-            }
         }
 
         // Ищешь коммент от гпт? А хуй те не найдёшь, плуг то я сам писал лол
@@ -112,9 +110,9 @@ public class EnderDragon implements Listener {
                 if (winner != null && winner.isOnline()) {
                     ItemStack itemStack = new ItemStack(Material.DRAGON_EGG);
                     ItemMeta itemMeta = itemStack.getItemMeta();
-                    itemMeta.setDisplayName(Colorize.hex(config.getString("dragon-egg.name")));
-                    itemMeta.setLore(Colorize.hex(config.getList("dragon-egg.lore")));
-                    if (config.getBoolean("dragon-egg.glowing")) {
+                    itemMeta.setDisplayName(Colorize.hex(config.getDragonEggName()));
+                    itemMeta.setLore(Colorize.hex(config.getDragonEggLore()));
+                    if (config.isDragonEggGlowing()) {
                         itemMeta.addEnchant(Enchantment.KNOCKBACK, 1, true);
                         itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
                     }

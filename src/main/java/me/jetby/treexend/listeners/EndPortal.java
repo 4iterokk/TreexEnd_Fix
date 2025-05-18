@@ -15,6 +15,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
+import java.util.List;
+
 import static me.jetby.treexend.tools.LocationHandler.deserializeLocation;
 
 public class EndPortal implements Listener {
@@ -36,7 +38,8 @@ public class EndPortal implements Listener {
                 e.setCancelled(true);
 
                 plugin.getRunner().runAsync(() -> {
-                    for (String string : config.getList("messages.endIsClose")) {
+                    List<String> endIsClose  = config.getEndIsClose();
+                    for (String string : endIsClose) {
                         player.sendMessage(Colorize.hex(string));
                     }
                 });
@@ -48,14 +51,16 @@ public class EndPortal implements Listener {
                 if (block.getType() == Material.END_GATEWAY) {
                     BlockState state = block.getState();
                     if (state instanceof EndGateway gateway) {
-                        gateway.setExitLocation(deserializeLocation(config.getString("end-close-teleport"), plugin));
+                        Location endCloseTeleportLocation = deserializeLocation(config.getEndCloseTeleport(), plugin);
+                        gateway.setExitLocation(endCloseTeleportLocation);
                         gateway.update();
                         e.setCancelled(true);
                     }
                 }
             }
             if (e.getCause()==PlayerTeleportEvent.TeleportCause.END_PORTAL) {
-                e.setTo(deserializeLocation(config.getString("end-enter-teleport"), plugin));
+                Location endEnterTeleportLocation = deserializeLocation(config.getEndEnterTeleport(), plugin);
+                e.setTo(endEnterTeleportLocation);
             }
         }
     }

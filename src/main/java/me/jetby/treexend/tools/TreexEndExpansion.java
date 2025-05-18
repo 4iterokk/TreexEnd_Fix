@@ -85,7 +85,7 @@ public class TreexEndExpansion extends PlaceholderExpansion {
 
             String coordinates = storage.getTop(place);
             int amount = storage.getTopAmount(place);
-            String format = plugin.getCfg().getString("placeholder-top-format");
+            String format = plugin.getCfg().getPlaceholderTopFormat();
             String noFormat = "---";
 
             if (coordinates == null) {

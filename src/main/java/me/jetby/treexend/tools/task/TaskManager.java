@@ -43,13 +43,13 @@ public final class TaskManager {
             if (dragonIsAlive()) {
                 int online = Bukkit.getOnlinePlayers().size();
                 if (online>0) {
-                    for (String string : config.getList("messages.dragonDamage.message")) {
+                    for (String string : config.getDragonDamage()) {
                         broadcastMessage(Colorize.hex(setPlaceholders(string, null)));
                     }
                 }
 
             }
-        }, 0L, config.getInt("messages.dragonDamage.messageDelay")* 20L);
+        }, 0L, config.getDragonMessageDelay()* 20L);
     }
 
     public void startEggChecking() {

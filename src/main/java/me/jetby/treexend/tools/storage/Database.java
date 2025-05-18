@@ -23,7 +23,7 @@ public class Database implements StorageType {
 
     public Database(Main plugin) throws SQLException {
         this.plugin = plugin;
-        this.useMySQL = plugin.getCfg().getString("storage.type").equalsIgnoreCase("MYSQL");
+        this.useMySQL = plugin.getCfg().getStorageType().equalsIgnoreCase("MYSQL");
         this.connection = connect();
         createTable();
         initializeCache();
@@ -116,12 +116,12 @@ public class Database implements StorageType {
     private Connection connect() throws SQLException {
         if (useMySQL) {
             String url = String.format("jdbc:mysql://%s:%d/%s?useSSL=false",
-                    plugin.getCfg().getString("storage.host"),
-                    plugin.getCfg().getInt("storage.port"),
-                    plugin.getCfg().getString("storage.database"));
+                    plugin.getCfg().getStorageHost(),
+                    plugin.getCfg().getStoragePort(),
+                    plugin.getCfg().getStorageDatabase());
             return DriverManager.getConnection(url,
-                    plugin.getCfg().getString("storage.username"),
-                    plugin.getCfg().getString("storage.password"));
+                    plugin.getCfg().getStorageUsername(),
+                    plugin.getCfg().getStoragePassword());
         } else {
             return DriverManager.getConnection("jdbc:sqlite:" + plugin.getDataFolder() + "/storage.db");
         }

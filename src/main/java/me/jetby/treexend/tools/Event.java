@@ -47,7 +47,7 @@ public class Event {
             if (timer<=0) {
                 for (Player players : Bukkit.getOnlinePlayers()) {
                     if (players.getWorld().getName().equalsIgnoreCase("world_the_end")) {
-                        players.teleport(deserializeLocation(config.getString("end-close-teleport"), plugin));
+                        players.teleport(deserializeLocation(config.getEndCloseTeleport(), plugin));
                     }
                 }
                 setEndPortalStatus(false);

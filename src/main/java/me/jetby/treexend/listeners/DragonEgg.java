@@ -26,6 +26,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Arrays;
+import java.util.List;
 
 
 public class DragonEgg implements Listener {
@@ -44,26 +45,29 @@ public class DragonEgg implements Listener {
         if (e.getWhoClicked() instanceof Player player) {
             if (player.getInventory().contains(Material.DRAGON_EGG)) {
                 Inventory inventory = e.getInventory();
-                if (e.getCurrentItem().getType().equals(Material.DRAGON_EGG)) {
-                    if (inventory.getType().equals(InventoryType.SHULKER_BOX) ||
-                            inventory.getType().equals(InventoryType.BARREL) ||
-                            inventory.getType().equals(InventoryType.FURNACE) ||
-                            inventory.getType().equals(InventoryType.BREWING) ||
-                            inventory.getType().equals(InventoryType.ENDER_CHEST) ||
-                            inventory.getType().equals(InventoryType.LECTERN) ||
-                            inventory.getType().equals(InventoryType.DISPENSER)||
-                            inventory.getType().equals(InventoryType.DROPPER)||
-                            inventory.getType().equals(InventoryType.HOPPER)||
-                            inventory.getType().equals(InventoryType.BLAST_FURNACE)||
-                            inventory.getType().equals(InventoryType.STONECUTTER)) {
-                        for (String string : config.getList("messages.chestOnly")) {
-                            player.sendMessage(Colorize.hex(string));
-                        }
-                        e.setCancelled(true);
-                    } else {
+                if (e.getCurrentItem()!=null) {
+                    if (e.getCurrentItem().getType().equals(Material.DRAGON_EGG)) {
+                        if (inventory.getType().equals(InventoryType.SHULKER_BOX) ||
+                                inventory.getType().equals(InventoryType.BARREL) ||
+                                inventory.getType().equals(InventoryType.FURNACE) ||
+                                inventory.getType().equals(InventoryType.BREWING) ||
+                                inventory.getType().equals(InventoryType.ENDER_CHEST) ||
+                                inventory.getType().equals(InventoryType.LECTERN) ||
+                                inventory.getType().equals(InventoryType.DISPENSER)||
+                                inventory.getType().equals(InventoryType.DROPPER)||
+                                inventory.getType().equals(InventoryType.HOPPER)||
+                                inventory.getType().equals(InventoryType.BLAST_FURNACE)||
+                                inventory.getType().equals(InventoryType.STONECUTTER)) {
 
+                            List<String> chestOnly = config.getChestOnly();
+                            for (String string : chestOnly) {
+                                player.sendMessage(Colorize.hex(string));
+                            }
+                            e.setCancelled(true);
+                        }
                     }
                 }
+
 
             }
 
@@ -124,7 +128,7 @@ public class DragonEgg implements Listener {
     public void onPlace(BlockPlaceEvent e) {
         Block block = e.getBlock();
         if (block.getType().equals(Material.DRAGON_EGG)) {
-            if (!config.getBoolean("listeners.place")) {
+            if (!config.isListenersPlace()) {
                 e.setCancelled(true);
             }
         }
@@ -134,7 +138,7 @@ public class DragonEgg implements Listener {
     public void onDrop(PlayerDropItemEvent e) {
         if (e.getItemDrop().getItemStack().getType().equals(Material.DRAGON_EGG)) {
             e.getItemDrop().setGlowing(true);
-            e.getItemDrop().setCustomName(Colorize.hex(config.getString("dragon-egg.name")));
+            e.getItemDrop().setCustomName(Colorize.hex(config.getDragonEggName()));
             e.getItemDrop().setCustomNameVisible(true);
         }
     }
@@ -145,9 +149,9 @@ public class DragonEgg implements Listener {
             e.setCancelled(true);
             ItemStack itemStack = new ItemStack(Material.DRAGON_EGG);
             ItemMeta itemMeta = itemStack.getItemMeta();
-            itemMeta.setDisplayName(Colorize.hex(config.getString("dragon-egg.name")));
-            itemMeta.setLore(Colorize.hex(config.getList("dragon-egg.lore")));
-            if (config.getBoolean("dragon-egg.glowing")) {
+            itemMeta.setDisplayName(Colorize.hex(config.getDragonEggName()));
+            itemMeta.setLore(Colorize.hex(config.getDragonEggLore()));
+            if (config.isDragonEggGlowing()) {
                 itemMeta.addEnchant(Enchantment.KNOCKBACK, 1, true);
                 itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
             }
