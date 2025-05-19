@@ -2,6 +2,7 @@ package me.jetby.treexend.configurations;
 
 import lombok.Getter;
 import me.jetby.treexend.Main;
+import me.jetby.treexend.tools.colorizer.Colorize;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -43,16 +44,27 @@ public class Config {
     }
 
     public void load(FileConfiguration configuration) {
-        chestOnly = getOrDefaultList(configuration, "messages.chestOnly", List.of("&cЯйцо Дракона можно хранить только в сундуке."));
-        endIsClose = getOrDefaultList(configuration, "messages.endIsClose", List.of("&fЭндер мир сейчас закрыт, возвращайтесь в &bвоскресенье в 16:00 &fпо МСК"));
-        tradingIsDisabled = getOrDefaultList(configuration, "messages.tradingIsDisabled", List.of("&cСейчас вы не можете обменять яйца."));
-        noEggs = getOrDefaultList(configuration, "messages.noEggs", List.of("&cУ вас нету яиц дракона для получения приза!"));
-        portalIsBlocked = configuration.getStringList("messages.portalIsBlocked");
+        List<String> chestOnlyDefault = new ArrayList<>(List.of("&cЯйцо Дракона можно хранить только в сундуке."));
+        chestOnly = getOrDefaultList(configuration, "messages.chestOnly", chestOnlyDefault);
+
+        List<String> endIsCloseDefault = new ArrayList<>(List.of("&fЭндер мир сейчас закрыт, возвращайтесь в &bвоскресенье в 16:00 &fпо МСК"));
+        endIsClose = getOrDefaultList(configuration, "messages.endIsClose", endIsCloseDefault);
+
+        List<String> tradingIsDisabledDefault = new ArrayList<>(List.of("&cСейчас вы не можете обменять яйца."));
+        tradingIsDisabled = getOrDefaultList(configuration, "messages.tradingIsDisabled", tradingIsDisabledDefault);
+
+        List<String> noEggsDefault = new ArrayList<>(List.of("&cУ вас нету яиц дракона для получения приза!"));
+        noEggs = getOrDefaultList(configuration, "messages.noEggs", noEggsDefault);
+
+        List<String> portalIsBlockedDefault = new ArrayList<>(List.of(
+                "&b▶ &fВ настоящий момент измерение закрыто.",
+                "&b Приходи в воскресенье в 16:00"));
+        portalIsBlocked = getOrDefaultList(configuration, "messages.portalIsBlocked", portalIsBlockedDefault);
 
         placeholderTopFormat = configuration.getString("placeholder-top-format", "x: %x%, y: %y%, z: %z%");
         dragonEggName = configuration.getString("dragon-egg.name", "&dЯйцо дракона");
 
-        dragonEggLore = getOrDefaultList(configuration, "dragon-egg.lore", List.of(
+        List<String> dragonEggLoreDefault = new ArrayList<>(List.of(
                 "",
                 "&#FB0783&n◢&f В ваших руках самый ценный предмет.",
                 "&#FB0783◤&f Будьте с ним осторожнее!",
@@ -65,18 +77,17 @@ public class Config {
                 "&#FB0783  в обычном сундуке.",
                 "&#FB0783● &fНа спавне формируется топ,",
                 "  &fпо спрятанным яйцам - &#FB0783/warp top",
-                ""
-        ));
+                ""));
+        dragonEggLore = getOrDefaultList(configuration, "dragon-egg.lore", dragonEggLoreDefault);
 
-        dragonEggPrizes = getOrDefaultList(configuration, "dragon-egg.prizes", List.of(""));
+        List<String> dragonEggPrizesDefault = new ArrayList<>();
+        dragonEggPrizes = getOrDefaultList(configuration, "dragon-egg.prizes", dragonEggPrizesDefault);
 
-        // Логические параметры
         listenersDropOnQuit = configuration.getBoolean("listeners.dropOnQuit", true);
         listenersPlace = configuration.getBoolean("dragon-egg.glowing", true);
         listenersTeleportOnPortalJoin = configuration.getBoolean("teleportOnPortalJoin", false);
         dragonEggGlowing = configuration.getBoolean("listeners.place", true);
 
-        // Хранилище
         storageType = configuration.getString("storage.type", "YAML");
         storageHost = configuration.getString("storage.host", "localhost");
         storagePort = configuration.getInt("storage.port", 3306);
@@ -88,7 +99,7 @@ public class Config {
         endEnterTeleport = configuration.getString("end-enter-teleport");
         endCloseTeleport = configuration.getString("end-close-teleport");
 
-        dragonDamage = getOrDefaultList(configuration, "messages.dragonDamage.message", List.of(
+        List<String> dragonDamageDefault = new ArrayList<>(List.of(
                 "",
                 "Могущественный Дракон &#d27c33скоро будет поврежен, &fи всё",
                 "благодаря этим воинам:",
@@ -99,13 +110,16 @@ public class Config {
                 "Игрок, занявший первое место, &#ebcd35&lполучит Яйцо дракона.",
                 ""
         ));
+        dragonDamage = getOrDefaultList(configuration, "messages.dragonDamage.message", dragonDamageDefault);
 
         dragonMessageDelay = configuration.getInt("messages.dragonDamage.messageDelay", 60);
     }
 
     private List<String> getOrDefaultList(FileConfiguration config, String path, List<String> defaultValue) {
         List<String> list = config.getStringList(path);
-        return (list == null || list.isEmpty()) ? defaultValue : list;
+        defaultValue.replaceAll(Colorize::hex);
+        list.replaceAll(Colorize::hex);
+        return list.isEmpty() ? defaultValue : list;
     }
 
     public FileConfiguration getFile(String path, String fileName) {

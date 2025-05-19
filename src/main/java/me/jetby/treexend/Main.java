@@ -13,6 +13,7 @@ import me.jetby.treexend.tools.Metrics;
 import me.jetby.treexend.tools.TreexEndExpansion;
 import me.jetby.treexend.tools.storage.Database;
 import me.jetby.treexend.tools.storage.StorageType;
+import me.jetby.treexend.tools.storage.Version;
 import me.jetby.treexend.tools.storage.Yaml;
 import me.jetby.treexend.tools.task.BukkitRunner;
 import me.jetby.treexend.tools.task.Runner;
@@ -41,10 +42,13 @@ public final class Main extends JavaPlugin {
     private Event event;
     private EnderDragon dragon;
     private TaskManager taskManager;
+    private Version version;
 
     @Override
     public void onEnable() {
         saveDefaultConfig();
+
+        version = new Version(this);
 
         new Metrics(this, 25881);
 
@@ -70,6 +74,7 @@ public final class Main extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new EndPortal(this), this);
         getServer().getPluginManager().registerEvents(new DragonEgg(this), this);
         getServer().getPluginManager().registerEvents(dragon, this);
+        getServer().getPluginManager().registerEvents(version, this);
         registerCommand(cfg.getTradeCommand(), new TradeCommand(this));
     }
 

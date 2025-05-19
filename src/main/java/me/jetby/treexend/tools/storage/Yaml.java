@@ -122,21 +122,17 @@ public class Yaml implements StorageType {
 
     @Override
     public void save() {
-        plugin.getRunner().runAsync(()->{
             for (Map.Entry<Location, Integer> entry : locations.entrySet()) {
                 if (entry.getValue()==-1) continue;
                 Location loc = entry.getKey();
                 String key = serializeLocation(loc);
                 yaml.set("locations." + key + ".amount", entry.getValue());
             }
-
             try {
                 yaml.save(file);
             } catch (IOException e) {
                 debug("Не удалось сохранить файл (storage.yml)\n" + e, Level.SEVERE);
             }
-        });
-
     }
 
     @Override

@@ -38,8 +38,7 @@ public class TradeCommand implements CommandExecutor {
                 int eggAmount = countItems(player);
                 if (eggAmount > 0) {
                     removeItems(player, eggAmount);
-                    List<String> lines = config.getDragonEggPrizes();
-                    for (String line : lines) {
+                    for (String line : config.getDragonEggPrizes()) {
                         String replaced = line
                                 .replace("%player%", player.getName())
                                 .replace("%eggs_amount%", String.valueOf(eggAmount));
@@ -48,17 +47,13 @@ public class TradeCommand implements CommandExecutor {
                     }
                 }
             } else {
-                List<String> noEggs = config.getNoEggs();
-                int noEggsSize = noEggs.size();
-                for (int i = 0; i < noEggsSize; i++) {
-                    player.sendMessage(Colorize.hex(noEggs.get(i)));
+                for (String string : config.getNoEggs()) {
+                    player.sendMessage(string);
                 }
             }
         } else {
-            List<String> getTradingIsDisabled = config.getTradingIsDisabled();
-            int getTradingIsDisabledSize = getTradingIsDisabled.size();
-            for (int i = 0; i < getTradingIsDisabledSize; i++) {
-                player.sendMessage(Colorize.hex(getTradingIsDisabled.get(i)));
+            for (String string : config.getTradingIsDisabled()) {
+                player.sendMessage(string);
             }
         }
 

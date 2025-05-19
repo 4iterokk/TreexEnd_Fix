@@ -23,8 +23,10 @@ public final class TaskManager {
     private final Runner runner;
     private final Config config;
     private final StorageType storage;
+    private final Main plugin;
 
     public TaskManager(Main plugin) {
+        this.plugin = plugin;
         this.runner = plugin.getRunner();
         this.config = plugin.getCfg();
         this.storage = plugin.getStorageType();
@@ -40,16 +42,17 @@ public final class TaskManager {
     }
     public void startDragonCheck() {
         runner.startTimer(() -> {
-            if (dragonIsAlive()) {
-                int online = Bukkit.getOnlinePlayers().size();
-                if (online>0) {
-                    for (String string : config.getDragonDamage()) {
-                        broadcastMessage(Colorize.hex(setPlaceholders(string, null)));
+            if (plugin.getEvent().isEndPortalStatus()) {
+                if (dragonIsAlive()) {
+                    int online = Bukkit.getOnlinePlayers().size();
+                    if (online>0) {
+                        for (String string : config.getDragonDamage()) {
+                            broadcastMessage(setPlaceholders(string, null));
+                        }
                     }
                 }
-
             }
-        }, 0L, config.getDragonMessageDelay()* 20L);
+        }, 0L, config.getDragonMessageDelay()*20L);
     }
 
     public void startEggChecking() {

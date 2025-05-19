@@ -3,24 +3,30 @@ package me.jetby.treexend.commands;
 import me.jetby.treexend.Main;
 import me.jetby.treexend.configurations.Config;
 import me.jetby.treexend.tools.colorizer.Colorize;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static me.jetby.treexend.tools.LocationHandler.deserializeLocation;
+
 
 public class AdminCommands implements CommandExecutor, TabCompleter {
 
 
     final Main plugin;
+    final Config config;
     public AdminCommands(Main plugin) {
         this.plugin = plugin;
+        this.config = plugin.getCfg();
     }
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
@@ -71,6 +77,11 @@ public class AdminCommands implements CommandExecutor, TabCompleter {
                 case "close": {
                     if (args.length==1) {
                         plugin.getEvent().setEndPortalStatus(false);
+                        for (Player players : Bukkit.getOnlinePlayers()) {
+                            if (players.getWorld().getName().equalsIgnoreCase("world_the_end")) {
+                                players.teleport(deserializeLocation(config.getEndCloseTeleport(), plugin));
+                            }
+                        }
                         sender.sendMessage("End portal closed.");
                         break;
                     }

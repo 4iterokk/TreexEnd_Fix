@@ -20,6 +20,8 @@ import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -42,41 +44,68 @@ public class DragonEgg implements Listener {
 
     @EventHandler
     public void onClick(InventoryClickEvent e) {
-        if (e.getWhoClicked() instanceof Player player) {
-            if (player.getInventory().contains(Material.DRAGON_EGG)) {
+        if (!(e.getWhoClicked() instanceof Player player)) return;
+
+        ItemStack clickedItem = e.getCurrentItem();
+        ItemStack cursorItem = e.getCursor();
+        Inventory clickedInventory = e.getClickedInventory();
+        Inventory topInventory = e.getView().getTopInventory();
+        if ((clickedItem != null && clickedItem.getType() == Material.DRAGON_EGG) ||
+                (cursorItem != null && cursorItem.getType() == Material.DRAGON_EGG)) {
                 Inventory inventory = e.getInventory();
-                if (e.getCurrentItem()!=null) {
-                    if (e.getCurrentItem().getType().equals(Material.DRAGON_EGG)) {
-                        if (inventory.getType().equals(InventoryType.SHULKER_BOX) ||
-                                inventory.getType().equals(InventoryType.BARREL) ||
-                                inventory.getType().equals(InventoryType.FURNACE) ||
-                                inventory.getType().equals(InventoryType.BREWING) ||
-                                inventory.getType().equals(InventoryType.ENDER_CHEST) ||
-                                inventory.getType().equals(InventoryType.LECTERN) ||
-                                inventory.getType().equals(InventoryType.DISPENSER)||
-                                inventory.getType().equals(InventoryType.DROPPER)||
-                                inventory.getType().equals(InventoryType.HOPPER)||
-                                inventory.getType().equals(InventoryType.BLAST_FURNACE)||
-                                inventory.getType().equals(InventoryType.STONECUTTER)) {
-
-                            List<String> chestOnly = config.getChestOnly();
-                            for (String string : chestOnly) {
-                                player.sendMessage(Colorize.hex(string));
-                            }
-                            e.setCancelled(true);
-                        }
-                    }
-                }
-
-
+            if (isRestrictedInventory(topInventory.getType())) {
+                config.getChestOnly().forEach(player::sendMessage);
+                e.setCancelled(true);
+                return;
             }
-
+        }
+        if (e.getClick().isShiftClick() || e.getHotbarButton() >= 0) {
+            ItemStack offHandItem = player.getInventory().getItemInOffHand();
+            if (offHandItem.getType() == Material.DRAGON_EGG && isRestrictedInventory(topInventory.getType())) {
+                config.getChestOnly().forEach(player::sendMessage);
+                e.setCancelled(true);
+            }
         }
     }
+
+    @EventHandler
+    public void onSwap(PlayerSwapHandItemsEvent e) {
+        Player player = e.getPlayer();
+        Inventory topInventory = player.getOpenInventory().getTopInventory();
+
+        if ((e.getMainHandItem() != null && e.getMainHandItem().getType() == Material.DRAGON_EGG) ||
+                (e.getOffHandItem() != null && e.getOffHandItem().getType() == Material.DRAGON_EGG)) {
+
+            if (topInventory != null && isRestrictedInventory(topInventory.getType())) {
+                config.getChestOnly().forEach(player::sendMessage);
+                e.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        if (config.isListenersDropOnQuit()) {
+            Player player = event.getPlayer();
+            Location location = player.getLocation();
+            for (ItemStack item : player.getInventory().getContents()) {
+                if (item != null && item.getType() == Material.DRAGON_EGG) {
+                    player.getWorld().dropItemNaturally(location, item);
+                    player.getInventory().remove(item);
+                }
+            }
+            ItemStack offHandItem = player.getInventory().getItemInOffHand();
+            if (offHandItem != null && offHandItem.getType() == Material.DRAGON_EGG) {
+                player.getWorld().dropItemNaturally(location, offHandItem);
+                player.getInventory().setItemInOffHand(null);
+            }
+        }
+
+    }
+
     @EventHandler
     public void onItemMoved(InventoryMoveItemEvent e) {
         ItemStack item = e.getItem();
-
         if (item.getType() == Material.DRAGON_EGG) {
             if (e.getDestination().getLocation() != null) {
                     if (e.getDestination().getHolder() instanceof Chest destinationChest) {
@@ -100,15 +129,34 @@ public class DragonEgg implements Listener {
             } else {
                 e.setCancelled(true);
             }
-
         }
     }
 
-
+    private boolean isRestrictedInventory(InventoryType type) {
+        return type == InventoryType.SHULKER_BOX ||
+                type == InventoryType.BARREL ||
+                type == InventoryType.FURNACE ||
+                type == InventoryType.BREWING ||
+                type == InventoryType.ENDER_CHEST ||
+                type == InventoryType.LECTERN ||
+                type == InventoryType.DISPENSER ||
+                type == InventoryType.DROPPER ||
+                type == InventoryType.HOPPER ||
+                type == InventoryType.BLAST_FURNACE ||
+                type == InventoryType.STONECUTTER;
+    }
     @EventHandler
     public void onClose(InventoryCloseEvent e) {
         if (e.getPlayer() instanceof Player player) {
             Inventory inventory = e.getInventory();
+            if (isRestrictedInventory(inventory.getType())) {
+                for (ItemStack item : inventory.getContents()) {
+                    if (item != null && item.getType() == Material.DRAGON_EGG) {
+                        inventory.remove(item);
+                        player.getWorld().dropItemNaturally(e.getPlayer().getLocation(), item);
+                    }
+                }
+            }
             if (player.getInventory().contains(Material.DRAGON_EGG) || inventory.contains(Material.DRAGON_EGG)) {
                 int amount = Arrays.stream(inventory.getContents()).filter(item -> item != null && item.getType() == Material.DRAGON_EGG).mapToInt(ItemStack::getAmount).sum();
                 if (inventory.getLocation()!=null) {
@@ -122,6 +170,7 @@ public class DragonEgg implements Listener {
                 }
             }
         }
+
     }
 
     @EventHandler

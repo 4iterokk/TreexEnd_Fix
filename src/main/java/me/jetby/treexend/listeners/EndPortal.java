@@ -3,7 +3,6 @@ package me.jetby.treexend.listeners;
 import me.jetby.treexend.Main;
 import me.jetby.treexend.configurations.Config;
 import me.jetby.treexend.tools.Event;
-import me.jetby.treexend.tools.colorizer.Colorize;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -15,7 +14,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
-import java.util.List;
 
 import static me.jetby.treexend.tools.LocationHandler.deserializeLocation;
 
@@ -36,13 +34,9 @@ public class EndPortal implements Listener {
         if (!event.isEndPortalStatus()) {
             if (e.getCause()==PlayerTeleportEvent.TeleportCause.END_PORTAL) {
                 e.setCancelled(true);
-
-                plugin.getRunner().runAsync(() -> {
-                    List<String> endIsClose  = config.getEndIsClose();
-                    for (String string : endIsClose) {
-                        player.sendMessage(Colorize.hex(string));
-                    }
-                });
+                for (String string : config.getEndIsClose()) {
+                    player.sendMessage(string);
+                }
             }
         } else {
             if (e.getCause() == PlayerTeleportEvent.TeleportCause.END_GATEWAY) {
