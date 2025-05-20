@@ -1,0 +1,58 @@
+
+enable: false
+
+scheduler:
+
+  timezone: GMT+3
+  times:
+    # 16:00:SUNDAY Каждое Воскресенье в 16:00
+    # 16:00 Каждый день в 16 00
+    - '16:00:SUNDAY'
+
+  # Когда таймер дойдёт до конца то произойдёт:
+  actions:
+    ################################################################
+    #
+    # [PORTAL_OPEN] Открыть портал
+    # [PORTAL_CLOSE] Закрыть портал
+    # [TRADING_ENABLE] Разрешить обмен яиц
+    # [TRADING_DISABLE] Запретить обмен яиц
+    # [CREATE_DRAGON] Заспавнить дракона
+    # [SET_DURATION] Поставить время через которое выполнится onEnd
+    #
+    # [MESSAGE] Send text to player
+    # [PLAYER] Execute command on behalf of the player
+    # [CONSOLE] Run command on behalf of console
+    # [ACTIONBAR] Send text to player in actionbar
+    # [SOUND] Play a sound for the player
+    # [EFFECT] Give the player an effect
+    # [TITLE] Send the player a title, to send a subtitle use the symbol ";"
+    ## For example: [TITLE] First;Second
+    #
+    ################################################################
+    #
+    # Placeholders:
+    # %tend_scheduler_time_to_start%
+    # %tend_scheduler_time_to_start_string%
+    # %tend_scheduler_time_to_end%
+    # %tend_scheduler_time_to_end_string%
+    #
+    ################################################################
+    preStart:
+      times:
+        - 300 # Если до начала старта осталось 300 секунд, то выполнится actions
+        - 120
+        - 30
+      actions:
+        - "[MESSAGE] "
+        - "[MESSAGE] &dЭнд &fоткроется через %tend_scheduler_time_to_start_string%"
+        - "[MESSAGE] "
+    onStart:
+      - "[PORTAL_OPEN]"
+      - "[MESSAGE] "
+      - "[MESSAGE] Энд открыт, и будет закрыт через 1 час "
+      - "[MESSAGE] "
+      - "[SET_DURATION] 3600"
+      - "[CREATE_DRAGON]"
+    onEnd:
+      - "[PORTAL_CLOSE]"
