@@ -5,12 +5,11 @@ import me.jetby.treexend.commands.AdminCommands;
 import me.jetby.treexend.commands.TradeCommand;
 import me.jetby.treexend.configurations.Config;
 import me.jetby.treexend.configurations.Data;
+import me.jetby.treexend.configurations.Scheduler;
 import me.jetby.treexend.listeners.DragonEgg;
 import me.jetby.treexend.listeners.EndPortal;
 import me.jetby.treexend.listeners.EnderDragon;
-import me.jetby.treexend.tools.Event;
-import me.jetby.treexend.tools.Metrics;
-import me.jetby.treexend.tools.TreexEndExpansion;
+import me.jetby.treexend.tools.*;
 import me.jetby.treexend.tools.storage.Database;
 import me.jetby.treexend.tools.storage.StorageType;
 import me.jetby.treexend.tools.storage.Version;
@@ -35,6 +34,7 @@ public final class Main extends JavaPlugin {
 
     private final Config cfg = new Config(this);
     private final Data data = new Data(this);
+    private final Scheduler scheduler = new Scheduler(this);
     private final Runner runner = new BukkitRunner(this);
     private StorageType storageType;
     private TreexEndExpansion treexEndExpansion;
@@ -43,7 +43,10 @@ public final class Main extends JavaPlugin {
     private EnderDragon dragon;
     private TaskManager taskManager;
     private Version version;
-
+    private Actions actions;
+    private SchedulerHandler schedulerHandler;
+    private FormatTime formatTime;
+    private BossBarHandler bossBarHandler;
     @Override
     public void onEnable() {
         saveDefaultConfig();
@@ -52,17 +55,27 @@ public final class Main extends JavaPlugin {
 
         new Metrics(this, 25881);
 
+
         final FileConfiguration configFile = cfg.getFile(getDataFolder().getAbsolutePath(), "config.yml");
         cfg.load(configFile);
+        bossBarHandler = new BossBarHandler(this);
 
+        formatTime = new FormatTime(this);
         data.load();
 
+        final FileConfiguration schedulerFile = cfg.getFile(getDataFolder().getAbsolutePath(), "scheduler.yml");
+        scheduler.load(schedulerFile);
+
+        schedulerHandler = new SchedulerHandler(this);
+        schedulerHandler.start();
         event = new Event(this);
         loadStorage();
 
+        actions = new Actions(this);
 
         taskManager = new TaskManager(this);
         taskManager.startDragonCheck();
+        taskManager.startEggsLocationsChecking();
         taskManager.startEggChecking();
 
         if (getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
@@ -123,5 +136,8 @@ public final class Main extends JavaPlugin {
             treexEndExpansion.unregister();
         }
         data.save();
+        if (schedulerHandler != null) {
+            schedulerHandler.stop();
+        }
     }
 }

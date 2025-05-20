@@ -8,7 +8,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.World;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -17,12 +17,18 @@ import java.util.List;
 
 public class Actions {
 
-
-    public static void execute(Main plugin, Player sender, List<String> commands) {
-        executeWithDelay(plugin, sender, commands, 0);
+    private final Main plugin;
+    private final Event event;
+    public Actions(Main plugin) {
+        this.plugin = plugin;
+        this.event = plugin.getEvent();
     }
 
-    private static void executeWithDelay(Main plugin, Player player, List<String> commands, int index) {
+    public void execute(Player sender, List<String> commands) {
+        executeWithDelay(sender, commands, 0);
+    }
+
+    private void executeWithDelay(Player player, List<String> commands, int index) {
         if (index >= commands.size()) return;
 
         String command = commands.get(index);
@@ -31,12 +37,43 @@ public class Actions {
 
         if (args[0].equalsIgnoreCase("[DELAY]")) {
             int delayTicks = Integer.parseInt(args[1]);
-            plugin.getRunner().runLater(() -> executeWithDelay(plugin, player, commands, index + 1), delayTicks);
+            plugin.getRunner().runLater(() -> executeWithDelay(player, commands, index + 1), delayTicks);
             return;
         }
         switch (args[0].toUpperCase()) {
             case "[MESSAGE]", "[MSG]", "[MESSAGE_ALL]": {
                 player.sendMessage(Colorize.hex(withoutCMD));
+                break;
+            }
+            case "[PORTAL_OPEN]": {
+                event.setEndPortalStatus(true);
+                break;
+            }
+            case "[PORTAL_CLOSE]": {
+                event.setEndPortalStatus(false);
+                break;
+            }
+            case "[TRADING_ENABLE]": {
+                event.setTradingStatus(true);
+                break;
+            }
+            case "[TRADING_DISABLE]": {
+                event.setTradingStatus(false);
+                break;
+            }
+            case "[SET_DURATION]": {
+                event.start(Integer.parseInt(withoutCMD));
+                break;
+            }
+            case "[CREATE_DRAGON]": {
+                World world = Bukkit.getWorld("world_the_end");
+                if (world != null) {
+                    Location location = new Location(world, 0, 100, 0);
+                   EnderDragon dragon = (EnderDragon) world.spawnEntity(location, EntityType.ENDER_DRAGON);
+                   dragon.setPhase(EnderDragon.Phase.CIRCLING);
+                } else {
+                    player.sendMessage("§cМир 'world_the_end' не найден.");
+                }
                 break;
             }
             case "[TELEPORT]", "[TP]": {
@@ -179,6 +216,6 @@ public class Actions {
                 player.sendTitle(title, subTitle, fadeIn * 20, stay * 20, fadeOut * 20);
             }
         }
-        executeWithDelay(plugin, player, commands, index + 1);
+        executeWithDelay(player, commands, index + 1);
     }
 }

@@ -1,8 +1,8 @@
 package me.jetby.treexend.tools.task;
 
+import me.clip.placeholderapi.PlaceholderAPI;
 import me.jetby.treexend.Main;
 import me.jetby.treexend.configurations.Config;
-import me.jetby.treexend.tools.colorizer.Colorize;
 import me.jetby.treexend.tools.storage.StorageType;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -11,10 +11,12 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
 
+import static me.jetby.treexend.tools.LocationHandler.deserializeLocation;
 import static me.jetby.treexend.tools.colorizer.Colorize.setPlaceholders;
 import static org.bukkit.Bukkit.broadcastMessage;
 
@@ -54,8 +56,27 @@ public final class TaskManager {
             }
         }, 0L, config.getDragonMessageDelay()*20L);
     }
-
     public void startEggChecking() {
+        runner.startTimerAsync(() -> {
+            if (config.isBarEgg()) {
+                    int online = Bukkit.getOnlinePlayers().size();
+                    if (online>0) {
+                        for (Player player : Bukkit.getOnlinePlayers()) {
+                            if (plugin.getBossBarHandler().getEggBossBars().containsKey(player.getUniqueId())) {
+                                if (!player.getInventory().contains(Material.DRAGON_EGG)) {
+                                    plugin.getBossBarHandler().removeEggBossbar(player);
+                                }
+                            }
+                            if (!player.getInventory().contains(Material.DRAGON_EGG)
+                                    && player.getInventory().getItemInOffHand().getType()!=Material.DRAGON_EGG) continue;
+                            plugin.getBossBarHandler().sendEggBossbar(player);
+                        }
+                    }
+            }
+        }, 0L, 20L);
+    }
+
+    public void startEggsLocationsChecking() {
         runner.startTimer(() -> {
             for (Location location : storage.getCache().keySet()) {
                 if (location.getWorld().isChunkLoaded(location.getBlockX() >> 4, location.getBlockZ() >> 4)) {

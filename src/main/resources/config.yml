@@ -18,6 +18,10 @@
 # %tend_top_<число>_amount% - Показывает кол-во яиц нужного топа
 # %tend_damage_top_<число>_name% - Показывает ник игрока нужного топа по урону дракона
 # %tend_damage_top_<число>_damage% - Показывает урон нужного топа по урону дракона
+# %tend_scheduler_time_to_start%
+# %tend_scheduler_time_to_start_string%
+# %tend_scheduler_time_to_end%
+# %tend_scheduler_time_to_end_string%
 #
 ####################################################################################################
 
@@ -93,3 +97,41 @@ messages:
   portalIsBlocked:
     - "&b▶ &fВ настоящий момент измерение закрыто."
     - "&b Приходи в воскресенье в 16:00"
+
+BossBar:
+  duration:
+    enable: false
+    title: "Энд закроется через %tend_scheduler_time_to_end% сек."
+    Color: RED
+    Style: SOLID
+  egg:
+    enable: true
+    title: "Осторожно у вас в инвентаре яйцо дракона"
+    Color: RED
+    Style: SOLID
+
+
+# Ниже настройки плейсхолдера %tend_scheduler_time_to_start_string% и остальные string
+
+formattedTime:
+  format: "%weeks% %days% %hours% %minutes% %seconds%"
+  seconds:
+    - 'секунду'
+    - 'секунды'
+    - 'секунд'
+  minutes:
+    - 'минуту'
+    - 'минуты'
+    - 'минут'
+  hours:
+    - 'час'
+    - 'часа'
+    - 'часов'
+  days:
+    - 'день'
+    - 'дня'
+    - 'дней'
+  weeks:
+    - 'неделю'
+    - 'недели'
+    - 'недель'

@@ -3,6 +3,8 @@ package me.jetby.treexend.configurations;
 import lombok.Getter;
 import me.jetby.treexend.Main;
 import me.jetby.treexend.tools.colorizer.Colorize;
+import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarStyle;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -38,12 +40,57 @@ public class Config {
     private String endCloseTeleport;
     private String endEnterTeleport;
 
+    private BarColor barColorDuration;
+    private BarStyle barStyleDuration;
+    private String barDurationTitle;
+    private boolean barDuration;
+
+    private BarColor barColorEgg;
+    private BarStyle barStyleEgg;
+    private String barEggTitle;
+    private boolean barEgg;
+
+    private List<String> formattedTimeSeconds;
+    private List<String> formattedTimeMinutes;
+    private List<String> formattedTimeHours;
+    private List<String> formattedTimeDays;
+    private List<String> formattedTimeWeeks;
+    private String formattedTimeFormat;
     private final Main plugin;
     public Config(Main plugin) {
         this.plugin = plugin;
     }
 
     public void load(FileConfiguration configuration) {
+
+        barColorEgg = BarColor.valueOf(configuration.getString("BossBar.egg.Color", String.valueOf(BarColor.RED)));
+        barStyleEgg = BarStyle.valueOf(configuration.getString("BossBar.egg.Style", String.valueOf(BarStyle.SOLID)));
+        barEggTitle = configuration.getString("BossBar.egg.title", "Осторожно у вас в инвентаре яйцо дракона");
+        barEgg = configuration.getBoolean("BossBar.egg.enable", false);
+
+        barColorDuration = BarColor.valueOf(configuration.getString("BossBar.duration.Color", String.valueOf(BarColor.RED)));
+        barStyleDuration = BarStyle.valueOf(configuration.getString("BossBar.duration.Style", String.valueOf(BarStyle.SOLID)));
+        barDurationTitle = configuration.getString("BossBar.duration.title", "Энд закроется через %tend_scheduler_time_to_end% сек.");
+        barDuration = configuration.getBoolean("BossBar.duration.enable", false);
+
+
+        formattedTimeFormat = configuration.getString("formattedTime.format", "%weeks% %days% %hours% %minutes% %seconds%");
+
+        List<String> formattedTimeSecondsDefault = new ArrayList<>(List.of("секунду", "секунды", "секунд"));
+        formattedTimeSeconds = getOrDefaultList(configuration, "formattedTime.seconds", formattedTimeSecondsDefault);
+
+        List<String> formattedTimeMinutesDefault = new ArrayList<>(List.of("минуту", "минуты", "минут"));
+        formattedTimeMinutes = getOrDefaultList(configuration, "formattedTime.minutes", formattedTimeMinutesDefault);
+
+        List<String> formattedTimeHoursDefault = new ArrayList<>(List.of("час", "часа", "часов"));
+        formattedTimeHours = getOrDefaultList(configuration, "formattedTime.hours", formattedTimeHoursDefault);
+
+        List<String> formattedTimeDaysDefault = new ArrayList<>(List.of("день", "дня", "дней"));
+        formattedTimeDays = getOrDefaultList(configuration, "formattedTime.days", formattedTimeDaysDefault);
+
+        List<String> formattedTimeWeeksDefault = new ArrayList<>(List.of("неделю", "недели", "недель"));
+        formattedTimeWeeks = getOrDefaultList(configuration, "formattedTime.weeks", formattedTimeWeeksDefault);
+
         List<String> chestOnlyDefault = new ArrayList<>(List.of("&cЯйцо Дракона можно хранить только в сундуке."));
         chestOnly = getOrDefaultList(configuration, "messages.chestOnly", chestOnlyDefault);
 

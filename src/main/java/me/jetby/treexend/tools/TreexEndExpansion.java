@@ -15,6 +15,8 @@ import static me.jetby.treexend.tools.LocationHandler.deserializeLocation;
 public class TreexEndExpansion extends PlaceholderExpansion {
     private final Main plugin;
     private final StorageType storage;
+    private final FormatTime format;
+    private final SchedulerHandler schedulerHandler;
     private final Pattern top = Pattern.compile("top_(\\d+)(?:_(coordinates|amount))?");
     private final Pattern topDamage = Pattern.compile("damage_top_(\\d+)(?:_(name|damage))?");
 
@@ -22,6 +24,8 @@ public class TreexEndExpansion extends PlaceholderExpansion {
     public TreexEndExpansion(Main plugin) {
         this.plugin = plugin;
         this.storage = plugin.getStorageType();
+        this.schedulerHandler = plugin.getSchedulerHandler();
+        this.format = plugin.getFormatTime();
     }
 
     @Override
@@ -47,6 +51,26 @@ public class TreexEndExpansion extends PlaceholderExpansion {
     public String onPlaceholderRequest(Player player, @NotNull String identifier) {
         Matcher matcherTop = top.matcher(identifier);
         Matcher matcherTopDamage = topDamage.matcher(identifier);
+
+        if (identifier.equalsIgnoreCase("scheduler_time_to_start")) {
+            return String.valueOf(schedulerHandler.getSecondsUntilStart());
+        }
+        if (identifier.equalsIgnoreCase("scheduler_time_to_end")) {
+            return String.valueOf(plugin.getEvent().getTimer());
+        }
+        if (identifier.equalsIgnoreCase("scheduler_time_to_start_string")) {
+            return format.stringFormat((int) schedulerHandler.getSecondsUntilStart());
+        }
+        if (identifier.equalsIgnoreCase("scheduler_time_to_start_format")) {
+            return format.stringFormat((int) schedulerHandler.getSecondsUntilStart());
+        }
+        if (identifier.equalsIgnoreCase("scheduler_time_to_end_string")) {
+            return format.stringFormat((plugin.getEvent().getTimer()));
+        }
+        if (identifier.equalsIgnoreCase("scheduler_time_to_end_format")) {
+            return format.stringFormat((plugin.getEvent().getTimer()));
+        }
+
         if (matcherTopDamage.matches()) {
             String numberStr = matcherTopDamage.group(1);
             String type = matcherTopDamage.group(2);

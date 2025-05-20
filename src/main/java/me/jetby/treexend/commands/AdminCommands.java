@@ -36,6 +36,7 @@ public class AdminCommands implements CommandExecutor, TabCompleter {
                 sender.sendMessage(Colorize.hex("&d/tend close &7- &fЗапретить вход в портал Энда."));
                 sender.sendMessage(Colorize.hex("&d/tend enableTrading &7- &fИгроки могут обменять яйца на приз."));
                 sender.sendMessage(Colorize.hex("&d/tend disableTrading &7- &fИгроки не могут обменять яйца на приз."));
+                sender.sendMessage(Colorize.hex("&d/tend forceStart &7- &fЗапустить scheduler моментально."));
                 sender.sendMessage(Colorize.hex("&d/tend reload &7- &fПерезагрузить плагин."));
                 return true;
                 // Идея себе на будущее, если не передумаю или не придумаю вариант лучше
@@ -51,13 +52,16 @@ public class AdminCommands implements CommandExecutor, TabCompleter {
                     plugin.getRunner().runAsync(() -> {
                         plugin.reloadConfig();
                         final FileConfiguration configFile = plugin.getCfg().getFile(String.valueOf(plugin.getDataFolder()), "config.yml");
+                        final FileConfiguration schedulerFile = plugin.getCfg().getFile(String.valueOf(plugin.getDataFolder()), "scheduler.yml");
                         plugin.getCfg().load(configFile);
+                        plugin.getScheduler().load(schedulerFile);
+                        plugin.getSchedulerHandler().start();
                         if (plugin.getStorageType().cacheExist()) {
                             plugin.getStorageType().save();
                         }
                         plugin.loadStorage();
                         plugin.getTaskManager().startDragonCheck();
-                        plugin.getTaskManager().startEggChecking();
+                        plugin.getTaskManager().startEggsLocationsChecking();
                         sender.sendMessage("Config reloaded.");
                     });
                     break;
@@ -97,6 +101,11 @@ public class AdminCommands implements CommandExecutor, TabCompleter {
                     sender.sendMessage("Trading disabled.");
                     break;
                 }
+                case "forcestart": {
+                    plugin.getSchedulerHandler().forceStart();
+                    sender.sendMessage("Force started.");
+                    break;
+                }
             }
             return true;
         }
@@ -116,6 +125,7 @@ public class AdminCommands implements CommandExecutor, TabCompleter {
                 completions.add("enableTrading");
                 completions.add("disableTrading");
                 completions.add("reload");
+                completions.add("forceStart");
             }
         }
         String input = args[args.length - 1].toLowerCase();

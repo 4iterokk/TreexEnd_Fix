@@ -85,15 +85,25 @@ public class EnderDragon implements Listener {
             int z = dragon.getDragonBattle().getEndPortalLocation().getBlockZ();
             Location blockLocation = new Location(world, x, y, z);
             Block block = blockLocation.getBlock();
-            if (!dragon.getDragonBattle().hasBeenPreviouslyKilled()) {
-                runner.startTimer(() -> {
-                    if (block.getType() == Material.DRAGON_EGG) {
-                        block.setType(Material.AIR);
-                        runner.cancelTask(runner.getTaskdId());
-                    }
-                }, 0, 1);
+            if (dragon.getDragonBattle()!=null) {
+                if (!dragon.getDragonBattle().hasBeenPreviouslyKilled()) {
+                    runner.startTimer(() -> {
+                        int time = 1;
+                        time++;
+                        if (block.getType() == Material.DRAGON_EGG) {
+                            block.setType(Material.AIR);
+                            runner.cancelTask(runner.getTaskdId());
+                            time = 0;
+                        }
+                        if (time==0) {
+                            runner.cancelTask(runner.getTaskdId());
+                        }
 
+                    }, 0, 1);
+
+                }
             }
+
 
             double maxDamage = 0.0;
             UUID maxPlayerUUID = null;

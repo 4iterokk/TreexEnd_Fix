@@ -43,7 +43,7 @@ public class TradeCommand implements CommandExecutor {
                                 .replace("%player%", player.getName())
                                 .replace("%eggs_amount%", String.valueOf(eggAmount));
                         replaced = evaluateMathExpressions(replaced);
-                        Actions.execute(plugin, player, List.of(replaced));
+                        plugin.getActions().execute(player, List.of(replaced));
                     }
                 }
             } else {
