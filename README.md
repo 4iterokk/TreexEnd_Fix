@@ -37,3 +37,6 @@
 #
 ####################################################################################################
 ```
+
+# bStats
+[![](https://bstats.org/signatures/bukkit/TreexEnd.svg)](https://bstats.org/plugin/bukkit/TreexEnd)
