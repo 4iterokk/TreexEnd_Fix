@@ -12,7 +12,7 @@ import me.jetby.treexend.listeners.EnderDragon;
 import me.jetby.treexend.tools.*;
 import me.jetby.treexend.tools.storage.Database;
 import me.jetby.treexend.tools.storage.StorageType;
-import me.jetby.treexend.tools.storage.Version;
+import me.jetby.treexend.tools.Version;
 import me.jetby.treexend.tools.storage.Yaml;
 import me.jetby.treexend.tools.task.BukkitRunner;
 import me.jetby.treexend.tools.task.Runner;

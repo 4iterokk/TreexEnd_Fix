@@ -29,13 +29,19 @@ public class TreexEndExpansion extends PlaceholderExpansion {
     }
 
     @Override
-    public @NotNull String getIdentifier() {return "tend";}
+    public @NotNull String getIdentifier() {
+        return "tend";
+    }
 
     @Override
-    public @NotNull String getAuthor() {return plugin.getDescription().getAuthors().toString();}
+    public @NotNull String getAuthor() {
+        return plugin.getDescription().getAuthors().toString();
+    }
 
     @Override
-    public @NotNull String getVersion() {return plugin.getDescription().getVersion();}
+    public @NotNull String getVersion() {
+        return plugin.getDescription().getVersion();
+    }
 
     @Override
     public boolean persist() {
@@ -51,25 +57,6 @@ public class TreexEndExpansion extends PlaceholderExpansion {
     public String onPlaceholderRequest(Player player, @NotNull String identifier) {
         Matcher matcherTop = top.matcher(identifier);
         Matcher matcherTopDamage = topDamage.matcher(identifier);
-
-        if (identifier.equalsIgnoreCase("scheduler_time_to_start")) {
-            return String.valueOf(schedulerHandler.getSecondsUntilStart());
-        }
-        if (identifier.equalsIgnoreCase("scheduler_time_to_end")) {
-            return String.valueOf(plugin.getEvent().getTimer());
-        }
-        if (identifier.equalsIgnoreCase("scheduler_time_to_start_string")) {
-            return format.stringFormat((int) schedulerHandler.getSecondsUntilStart());
-        }
-        if (identifier.equalsIgnoreCase("scheduler_time_to_start_format")) {
-            return format.stringFormat((int) schedulerHandler.getSecondsUntilStart());
-        }
-        if (identifier.equalsIgnoreCase("scheduler_time_to_end_string")) {
-            return format.stringFormat((plugin.getEvent().getTimer()));
-        }
-        if (identifier.equalsIgnoreCase("scheduler_time_to_end_format")) {
-            return format.stringFormat((plugin.getEvent().getTimer()));
-        }
 
         if (matcherTopDamage.matches()) {
             String numberStr = matcherTopDamage.group(1);
@@ -121,7 +108,7 @@ public class TreexEndExpansion extends PlaceholderExpansion {
             } else if ("coordinates".equalsIgnoreCase(type)) {
                 return coordinates.equals("0_0_0_world") ? noFormat : coordinates;
             } else {
-                if (amount == 0 || amount==-1 || coordinates.equals("0_0_0_world")) {
+                if (amount == 0 || amount == -1 || coordinates.equals("0_0_0_world")) {
                     return noFormat;
                 }
 
@@ -138,6 +125,14 @@ public class TreexEndExpansion extends PlaceholderExpansion {
                         .replace("%amount%", String.valueOf(amount));
             }
         }
-        return null;
+        return switch (identifier.toLowerCase()) {
+            case "scheduler_time_to_start" -> String.valueOf(schedulerHandler.getSecondsUntilStart());
+            case "scheduler_time_to_end" -> String.valueOf(plugin.getEvent().getTimer());
+            case "scheduler_time_to_start_string", "scheduler_time_to_start_format" ->
+                    format.stringFormat((int) schedulerHandler.getSecondsUntilStart());
+            case "scheduler_time_to_end_string", "scheduler_time_to_end_format" ->
+                    format.stringFormat((plugin.getEvent().getTimer()));
+            default -> null;
+        };
     }
 }

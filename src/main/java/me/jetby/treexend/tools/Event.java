@@ -3,7 +3,6 @@ package me.jetby.treexend.tools;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
-import me.clip.placeholderapi.PlaceholderAPI;
 import me.jetby.treexend.Main;
 import me.jetby.treexend.configurations.Config;
 import me.jetby.treexend.configurations.Data;
@@ -11,7 +10,6 @@ import me.jetby.treexend.tools.task.Runner;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import java.util.List;
 
 import static me.jetby.treexend.tools.LocationHandler.deserializeLocation;
 

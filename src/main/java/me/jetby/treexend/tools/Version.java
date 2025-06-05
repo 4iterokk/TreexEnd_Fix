@@ -1,4 +1,4 @@
-package me.jetby.treexend.tools.storage;
+package me.jetby.treexend.tools;
 
 import me.jetby.treexend.Main;
 import org.bukkit.entity.Player;

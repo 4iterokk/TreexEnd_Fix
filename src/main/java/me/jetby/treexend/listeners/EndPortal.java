@@ -5,6 +5,7 @@ import me.jetby.treexend.configurations.Config;
 import me.jetby.treexend.tools.Event;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.EndGateway;
@@ -58,5 +59,17 @@ public class EndPortal implements Listener {
             }
         }
     }
+
+    @EventHandler
+    public void onTeleport(PlayerTeleportEvent event) {
+        Player player = event.getPlayer();
+        World toWorld = event.getTo().getWorld();
+        if (player.hasPermission("treexend.tpbypass")) return;
+
+        if (toWorld.getEnvironment() == World.Environment.THE_END) {
+            event.setCancelled(true);
+        }
+    }
+
 
 }
