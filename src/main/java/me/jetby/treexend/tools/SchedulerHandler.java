@@ -53,9 +53,7 @@ public class SchedulerHandler {
                 if (timeBefore==getSecondsUntilStart()) {
                     List<String> preStartActions = scheduler.getPreStartActions();
                     preStartActions.replaceAll(s -> PlaceholderAPI.setPlaceholders(null, s));
-                    for (Player player : Bukkit.getOnlinePlayers()) {
-                        plugin.getActions().execute(player, preStartActions);
-                    }
+                    plugin.getActions().execute(preStartActions);
                 }
             }
         }, 0, 20);
@@ -104,9 +102,7 @@ public class SchedulerHandler {
     }
 
     private void startEvent() {
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            plugin.getActions().execute(player, scheduler.getOnStart());
-        }
+        plugin.getActions().execute(scheduler.getOnStart());
 
         if (runner.getTaskdId() != 0) {
             runner.cancelTask(runner.getTaskdId());
@@ -114,9 +110,7 @@ public class SchedulerHandler {
 
         runner.startTimer(() -> {
             if (plugin.getEvent().getTimer() <= 0) {
-                for (Player player : Bukkit.getOnlinePlayers()) {
-                    plugin.getActions().execute(player, scheduler.getOnEnd());
-                }
+                plugin.getActions().execute(scheduler.getOnEnd());
             }
         }, 0, 20L);
     }

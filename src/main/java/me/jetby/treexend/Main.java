@@ -55,7 +55,6 @@ public final class Main extends JavaPlugin {
 
         new Metrics(this, 25881);
 
-
         final FileConfiguration configFile = cfg.getFile(getDataFolder().getAbsolutePath(), "config.yml");
         cfg.load(configFile);
         bossBarHandler = new BossBarHandler(this);
