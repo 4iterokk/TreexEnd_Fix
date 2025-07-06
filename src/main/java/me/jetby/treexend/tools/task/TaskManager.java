@@ -1,24 +1,23 @@
 package me.jetby.treexend.tools.task;
 
-import me.clip.placeholderapi.PlaceholderAPI;
 import me.jetby.treexend.Main;
 import me.jetby.treexend.configurations.Config;
+import me.jetby.treexend.tools.Logger;
+import me.jetby.treexend.tools.NBTUtil;
+import me.jetby.treexend.tools.storage.EggPrices;
 import me.jetby.treexend.tools.storage.StorageType;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.List;
+import java.util.Map;
 
-import static me.jetby.treexend.tools.LocationHandler.deserializeLocation;
-import static me.jetby.treexend.tools.colorizer.Colorize.setPlaceholders;
-import static org.bukkit.Bukkit.broadcastMessage;
 
 
 public final class TaskManager {
@@ -42,19 +41,52 @@ public final class TaskManager {
 
         } return false;
     }
+
+    public void startPortalCheck() {
+        runner.startTimerAsync(() -> {
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                if (!plugin.getEvent().isEndPortalStatus()) {
+                    Location loc = player.getLocation();
+                    Block block = loc.getBlock();
+                    if (block.getType() == Material.END_PORTAL) {
+                        for (String string : config.getEndIsClose()) {
+                            player.sendMessage(string);
+                        }
+                    }
+                }
+
+            }
+
+        }, 0L, 3 * 20L);
+    }
+
+    public void startPriceCheck() {
+        runner.startTimer(() -> {
+            for (Map.Entry<Location, EggPrices> entry : storage.getPriceCache().entrySet()) {
+                EggPrices eggPrices = entry.getValue();
+                eggPrices.increasePrices(config.getUpdateAmount(), config.getPriceMax());
+
+                if (config.isDebug()) {
+                    Logger.info("Цены "+eggPrices.prices());
+                }
+
+            }
+
+        }, 0L, config.getUpdateInterval() * 20L);
+    }
+
+
     public void startDragonCheck() {
         runner.startTimer(() -> {
             if (plugin.getEvent().isEndPortalStatus()) {
                 if (dragonIsAlive()) {
                     int online = Bukkit.getOnlinePlayers().size();
                     if (online>0) {
-                        for (String string : config.getDragonDamage()) {
-                            broadcastMessage(setPlaceholders(string, null));
-                        }
+                        plugin.getActions().execute(config.getActionsIfDragonAlive());
                     }
                 }
             }
-        }, 0L, config.getDragonMessageDelay()*20L);
+        }, 0L, config.getActionsIfDragonAliveDelay()*20L);
     }
     public void startEggChecking() {
         runner.startTimerAsync(() -> {
@@ -78,7 +110,15 @@ public final class TaskManager {
 
     public void startEggsLocationsChecking() {
         runner.startTimer(() -> {
-            for (Location location : storage.getCache().keySet()) {
+            for (Map.Entry<Location, EggPrices> entry : storage.getPriceCache().entrySet()) {
+                Location price_location = entry.getKey();
+                if (price_location.getBlock().getType() == Material.CHEST) continue;
+                storage.getPriceCache().remove(price_location);
+                if (config.isDebug()) {
+                    Logger.info("Локация "+price_location+" удалена");
+                }
+            }
+            for (Location location : storage.getLocationCache().keySet()) {
                 if (location.getWorld().isChunkLoaded(location.getBlockX() >> 4, location.getBlockZ() >> 4)) {
                     Block block = location.getBlock();
 

@@ -17,12 +17,14 @@ import me.jetby.treexend.tools.storage.Yaml;
 import me.jetby.treexend.tools.task.BukkitRunner;
 import me.jetby.treexend.tools.task.Runner;
 import me.jetby.treexend.tools.task.TaskManager;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandMap;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.defaults.BukkitCommand;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.lang.reflect.Field;
@@ -53,7 +55,13 @@ public final class Main extends JavaPlugin {
 
         version = new Version(this);
 
+        for (String string : version.getAlert()) {
+            Logger.info(string);
+        }
+
         new Metrics(this, 25881);
+
+        NBTUtil.initialize(this);
 
         final FileConfiguration configFile = cfg.getFile(getDataFolder().getAbsolutePath(), "config.yml");
         cfg.load(configFile);
@@ -76,10 +84,19 @@ public final class Main extends JavaPlugin {
         taskManager.startDragonCheck();
         taskManager.startEggsLocationsChecking();
         taskManager.startEggChecking();
+        taskManager.startPriceCheck();
+        taskManager.startPortalCheck();
 
         if (getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
             treexEndExpansion = new TreexEndExpansion(this);
             treexEndExpansion.register();
+            Logger.info("Плейсхлодеры успешно зарегистрированы.");
+        } else {
+            Logger.error("[!]------------------[!]");
+            Logger.error("Плагин PlaceholderAPI не был найден! Плагин без него не может работать.");
+            Logger.error("[!]------------------[!]");
+            getServer().getPluginManager().disablePlugin(this);
+            return;
         }
         dragon = new EnderDragon(this);
         getCommand("tend").setExecutor(new AdminCommands(this));
@@ -88,18 +105,16 @@ public final class Main extends JavaPlugin {
         getServer().getPluginManager().registerEvents(dragon, this);
         getServer().getPluginManager().registerEvents(version, this);
         registerCommand(cfg.getTradeCommand(), new TradeCommand(this));
+
+        Logger.success("Плагин готов к работе!");
     }
 
     public void loadStorage() {
         if (cfg.getStorageType().equalsIgnoreCase("YAML")) {
             storageType = new Yaml(this);
         } else {
-            try {
-                database = new Database(this);
-                storageType = database;
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+            database = new Database(this);
+            storageType = database;
         }
     }
     private void registerCommand(String commandName, CommandExecutor executor) {
@@ -125,18 +140,27 @@ public final class Main extends JavaPlugin {
     @Override
     public void onDisable() {
         runner.cancelTasks();
-        if (storageType.cacheExist()) {
-            storageType.save();
-            if (!storageType.type().equalsIgnoreCase("YAML")) {
-                database.shutdown();
+        if (storageType!=null) {
+            if (storageType.cacheExist()) {
+                storageType.save();
+                if (!storageType.type().equalsIgnoreCase("YAML")) {
+                    database.shutdown();
+                }
             }
+        } else {
+            Logger.warn("Не удалось сохранить кэш.");
         }
+
         if (treexEndExpansion != null) {
             treexEndExpansion.unregister();
         }
         data.save();
         if (schedulerHandler != null) {
             schedulerHandler.stop();
+        }
+
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            bossBarHandler.clearPlayerBossBars(player);
         }
     }
 }

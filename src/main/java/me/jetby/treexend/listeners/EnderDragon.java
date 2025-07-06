@@ -32,7 +32,9 @@ public class EnderDragon implements Listener {
 
     private final Config config;
     private final Runner runner;
+    private final Main plugin;
     public EnderDragon(Main plugin){
+        this.plugin = plugin;
         this.config = plugin.getCfg();
         this.runner = plugin.getRunner();
     }
@@ -131,6 +133,8 @@ public class EnderDragon implements Listener {
                     
                 }
             }
+
+            plugin.getActions().execute(config.getActionsOnDeath());
 
             damages.clear();
 

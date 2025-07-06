@@ -3,6 +3,7 @@ package me.jetby.treexend.listeners;
 import me.jetby.treexend.Main;
 import me.jetby.treexend.configurations.Config;
 import me.jetby.treexend.tools.Event;
+import me.jetby.treexend.tools.LocationHandler;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -12,6 +13,7 @@ import org.bukkit.block.EndGateway;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
@@ -30,14 +32,17 @@ public class EndPortal implements Listener {
     }
 
     @EventHandler
+    public void onJoin(PlayerJoinEvent e) {
+        if (event.isEndPortalStatus()) return;
+        if (e.getPlayer().hasPermission("treexend.tpbypass")) return;
+        e.getPlayer().teleport(LocationHandler.deserializeLocation(config.getEndCloseTeleport(), plugin));
+    }
+
+    @EventHandler
     public void onPortal(PlayerPortalEvent e) {
-        Player player = e.getPlayer();
         if (!event.isEndPortalStatus()) {
             if (e.getCause()==PlayerTeleportEvent.TeleportCause.END_PORTAL) {
                 e.setCancelled(true);
-                for (String string : config.getEndIsClose()) {
-                    player.sendMessage(string);
-                }
             }
         } else {
             if (e.getCause() == PlayerTeleportEvent.TeleportCause.END_GATEWAY) {
@@ -61,15 +66,15 @@ public class EndPortal implements Listener {
     }
 
     @EventHandler
-    public void onTeleport(PlayerTeleportEvent event) {
-        Player player = event.getPlayer();
-        World toWorld = event.getTo().getWorld();
+    public void onTeleport(PlayerTeleportEvent e) {
+        Player player = e.getPlayer();
+        World toWorld = e.getTo().getWorld();
+        if (event.isEndPortalStatus()) return;
+
         if (player.hasPermission("treexend.tpbypass")) return;
 
         if (toWorld.getEnvironment() == World.Environment.THE_END) {
-            event.setCancelled(true);
+            e.setCancelled(true);
         }
     }
-
-
 }

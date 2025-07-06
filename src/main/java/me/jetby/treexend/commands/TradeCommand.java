@@ -3,6 +3,7 @@ package me.jetby.treexend.commands;
 import me.jetby.treexend.Main;
 import me.jetby.treexend.configurations.Config;
 import me.jetby.treexend.tools.Actions;
+import me.jetby.treexend.tools.NBTUtil;
 import me.jetby.treexend.tools.colorizer.Colorize;
 import me.jetby.treexend.tools.colorizer.ColorizerType;
 import net.objecthunter.exp4j.Expression;
@@ -34,23 +35,58 @@ public class TradeCommand implements CommandExecutor {
             return true;
         }
         if (plugin.getEvent().isTradingStatus()) {
-            if (player.getInventory().contains(EGG)) {
-                int eggAmount = countItems(player);
-                if (eggAmount > 0) {
-                    removeItems(player, eggAmount);
+
+
+            if (config.isGrowing()) {
+                int totalAmount = 0;
+                int totalPrice = 0;
+
+                for (ItemStack item : player.getInventory().getContents()) {
+                    if (item == null || item.getType() != EGG) continue;
+
+                    int amount = item.getAmount();
+                    int pricePerEgg = NBTUtil.getEggPrice(item);
+                    totalAmount += amount;
+                    totalPrice += pricePerEgg * amount;
+                }
+
+                if (totalAmount > 0) {
+                    removeItems(player, totalAmount);
+
                     for (String line : config.getDragonEggPrizes()) {
                         String replaced = line
                                 .replace("%player%", player.getName())
-                                .replace("%eggs_amount%", String.valueOf(eggAmount));
+                                .replace("%egg_price%", String.valueOf(totalPrice))
+                                .replace("%eggs_amount%", String.valueOf(totalAmount));
                         replaced = evaluateMathExpressions(replaced);
-                        plugin.getActions().execute(List.of(replaced));
+                        plugin.getActions().execute(player, List.of(replaced));
+                    }
+                } else {
+                    for (String string : config.getNoEggs()) {
+                        player.sendMessage(string);
                     }
                 }
+
+                return true;
+            } else {
+                if (player.getInventory().contains(EGG)) {
+                    int eggAmount = countItems(player);
+                    if (eggAmount > 0) {
+                        removeItems(player, eggAmount);
+                        for (String line : config.getDragonEggPrizes()) {
+                            String replaced = line
+                                    .replace("%player%", player.getName())
+                                    .replace("%eggs_amount%", String.valueOf(eggAmount));
+                            replaced = evaluateMathExpressions(replaced);
+                            plugin.getActions().execute(player, List.of(replaced));
+                        }
+                    }
+
             } else {
                 for (String string : config.getNoEggs()) {
                     player.sendMessage(string);
                 }
-            }
+            }}
         } else {
             for (String string : config.getTradingIsDisabled()) {
                 player.sendMessage(string);

@@ -8,10 +8,13 @@ import java.util.Map;
 public interface StorageType {
 
     String type();
-    Map<Location, Integer> getCache();
-    void setCache(@NotNull Location location, int amount);
-    int getCache(@NotNull Location location);
-    boolean containsCache(@NotNull Location location);
+    Map<Location, Integer> getLocationCache();
+    void setLocationCache(@NotNull Location location, int amount);
+    int getLocationCache(@NotNull Location location);
+    boolean containsLocationCache(@NotNull Location location);
+    void setPriceCache(@NotNull Location location, EggPrices eggPrices);
+    Map<Location, EggPrices> getPriceCache();
+    EggPrices getEggPrice(Location location);
     void removeCache(@NotNull Location location);
     boolean cacheExist();
     void save();

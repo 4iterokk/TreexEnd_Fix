@@ -4,6 +4,8 @@ main: me.jetby.treexend.Main
 api-version: '1.16'
 author: MrJetby
 website: https://treexstudio.pro
+depend:
+  - PlaceholderAPI
 commands:
   tend:
     aliases:

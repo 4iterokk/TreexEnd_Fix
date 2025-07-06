@@ -12,6 +12,8 @@ import org.bukkit.entity.Player;
 
 
 import static me.jetby.treexend.tools.LocationHandler.deserializeLocation;
+import static me.jetby.treexend.tools.colorizer.Colorize.setPlaceholders;
+import static org.bukkit.Bukkit.broadcastMessage;
 
 @Getter @Setter
 public class Event {

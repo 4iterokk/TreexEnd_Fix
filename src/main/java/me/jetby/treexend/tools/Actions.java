@@ -1,5 +1,6 @@
 package me.jetby.treexend.tools;
 
+import me.clip.placeholderapi.PlaceholderAPI;
 import me.jetby.treexend.Main;
 import me.jetby.treexend.tools.colorizer.Colorize;
 import net.md_5.bungee.api.ChatMessageType;
@@ -26,10 +27,13 @@ public class Actions {
     }
 
     public void execute(List<String> commands) {
-        executeWithDelay(commands, 0);
+        executeWithDelay(null, commands, 0);
+    }
+    public void execute(Player player, List<String> commands) {
+        executeWithDelay(player, commands, 0);
     }
 
-    private void executeWithDelay(List<String> commands, int index) {
+    private void executeWithDelay(Player player, List<String> commands, int index) {
         if (index >= commands.size()) return;
 
         String command = commands.get(index);
@@ -38,14 +42,21 @@ public class Actions {
 
         if (args[0].equalsIgnoreCase("[DELAY]")) {
             int delayTicks = Integer.parseInt(args[1]);
-            plugin.getRunner().runLater(() -> executeWithDelay( commands, index + 1), delayTicks);
+            plugin.getRunner().runLater(() -> executeWithDelay(player, commands, index + 1), delayTicks);
             return;
         }
         switch (args[0].toUpperCase()) {
             case "[MESSAGE]", "[MSG]", "[MESSAGE_ALL]": {
-                for (Player player : Bukkit.getOnlinePlayers()) {
-                    player.sendMessage(Colorize.hex(withoutCMD));
+
+                if (player!=null) {
+                    player.sendMessage(Colorize.hex(PlaceholderAPI.setPlaceholders(null, withoutCMD)));
+                } else {
+                    for (Player onlinePlayers : Bukkit.getOnlinePlayers()) {
+                        onlinePlayers.sendMessage(Colorize.hex(PlaceholderAPI.setPlaceholders(onlinePlayers, withoutCMD)));
+                    }
                 }
+
+
                 break;
             }
             case "[PORTAL_OPEN]": {
@@ -65,7 +76,7 @@ public class Actions {
                 break;
             }
             case "[SET_DURATION]": {
-                event.start(Integer.parseInt(withoutCMD));
+                event.start(Integer.parseInt(PlaceholderAPI.setPlaceholders(player, withoutCMD)));
                 break;
             }
             case "[CREATE_DRAGON]": {
@@ -95,8 +106,13 @@ public class Actions {
                         }
 
                         Location location = new Location(world, x, y, z);
-                        for (Player player : Bukkit.getOnlinePlayers()) {
+
+                        if (player!=null) {
                             player.teleport(location);
+                        } else {
+                            for (Player onlinePlayers : Bukkit.getOnlinePlayers()) {
+                                onlinePlayers.teleport(location);
+                            }
                         }
 
                     } catch (NumberFormatException e) {
@@ -122,8 +138,12 @@ public class Actions {
                         Location location = new Location(world, x, y, z, yaw, pitch);
 
                         Bukkit.getScheduler().runTask(plugin, ()-> {
-                            for (Player player : Bukkit.getOnlinePlayers()) {
+                            if (player!=null) {
                                 player.teleport(location);
+                            } else {
+                                for (Player onlinePlayers : Bukkit.getOnlinePlayers()) {
+                                    onlinePlayers.teleport(location);
+                                }
                             }
                         });
 
@@ -140,8 +160,12 @@ public class Actions {
             case "[PLAYER]": {
                 String finalWithoutCMD = withoutCMD;
                 Bukkit.getScheduler().runTask(plugin, ()-> {
-                    for (Player player : Bukkit.getOnlinePlayers()) {
+                    if (player!=null) {
                         player.chat("/"+finalWithoutCMD.replace("%player%", player.getName()));
+                    } else {
+                        for (Player onlinePlayers : Bukkit.getOnlinePlayers()) {
+                            onlinePlayers.chat("/"+finalWithoutCMD.replace("%player%", player.getName()));
+                        }
                     }
                 });
 
@@ -150,16 +174,25 @@ public class Actions {
             case "[CONSOLE]": {
                 String finalWithoutCMD = withoutCMD;
                 Bukkit.getScheduler().runTask(plugin, ()-> {
-                    for (Player player : Bukkit.getOnlinePlayers()) {
-                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), Colorize.hex(finalWithoutCMD.replace("%player%", player.getName())));
+                    if (player!=null) {
+                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), Colorize.hex(PlaceholderAPI.setPlaceholders(player, finalWithoutCMD.replace("%player%", player.getName()))));
+                    } else {
+                        for (Player onlinePlayers : Bukkit.getOnlinePlayers()) {
+                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), Colorize.hex(PlaceholderAPI.setPlaceholders(onlinePlayers, finalWithoutCMD.replace("%player%", onlinePlayers.getName()))));
+                        }
                     }
                 });
                 break;
             }
             case "[ACTIONBAR]": {
-                for (Player player : Bukkit.getOnlinePlayers()) {
+                if (player!=null) {
                     player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(Colorize.hex(withoutCMD
                             .replace("%player%", player.getName()))));
+                } else {
+                    for (Player onlinePlayers : Bukkit.getOnlinePlayers()) {
+                        onlinePlayers.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(Colorize.hex(withoutCMD
+                                .replace("%player%", player.getName()))));
+                    }
                 }
                 break;
             }
@@ -174,8 +207,12 @@ public class Actions {
                     if (!arg.startsWith("-pitch:")) continue;
                     pitch = Float.parseFloat(arg.replace("-pitch:", ""));
                 }
-                for (Player player : Bukkit.getOnlinePlayers()) {
+                if (player!=null) {
                     player.playSound(player.getLocation(), Sound.valueOf(args[1]), volume, pitch);
+                } else {
+                    for (Player onlinePlayers : Bukkit.getOnlinePlayers()) {
+                        onlinePlayers.playSound(player.getLocation(), Sound.valueOf(args[1]), volume, pitch);
+                    }
                 }
                 break;
             }
@@ -194,13 +231,19 @@ public class Actions {
                 if (effectType == null) {
                     return;
                 }
-                for (Player player : Bukkit.getOnlinePlayers()) {
+                if (player!=null) {
                     if (player.hasPotionEffect(effectType)) {
-                        continue;
+                        return;
                     }
                     player.addPotionEffect(new PotionEffect(effectType, duration * 20, strength));
+                } else {
+                    for (Player onlinePlayers : Bukkit.getOnlinePlayers()) {
+                        if (onlinePlayers.hasPotionEffect(effectType)) {
+                            continue;
+                        }
+                        onlinePlayers.addPotionEffect(new PotionEffect(effectType, duration * 20, strength));
+                    }
                 }
-
                 break;
             }
             case "[TITLE]": {
@@ -231,11 +274,15 @@ public class Actions {
                         subTitle = message[1];
                     }
                 }
-                for (Player player : Bukkit.getOnlinePlayers()) {
+                if (player!=null) {
                     player.sendTitle(title, subTitle, fadeIn * 20, stay * 20, fadeOut * 20);
+                } else {
+                    for (Player onlinePlayers : Bukkit.getOnlinePlayers()) {
+                        onlinePlayers.sendTitle(title, subTitle, fadeIn * 20, stay * 20, fadeOut * 20);
+                    }
                 }
             }
         }
-        executeWithDelay(commands, index + 1);
+        executeWithDelay(player, commands, index + 1);
     }
 }

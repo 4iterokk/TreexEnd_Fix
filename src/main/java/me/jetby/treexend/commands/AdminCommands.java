@@ -4,6 +4,7 @@ import me.jetby.treexend.Main;
 import me.jetby.treexend.configurations.Config;
 import me.jetby.treexend.tools.colorizer.Colorize;
 import org.bukkit.Bukkit;
+import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -37,6 +38,7 @@ public class AdminCommands implements CommandExecutor, TabCompleter {
                 sender.sendMessage(Colorize.hex("&d/tend enableTrading &7- &fИгроки могут обменять яйца на приз."));
                 sender.sendMessage(Colorize.hex("&d/tend disableTrading &7- &fИгроки не могут обменять яйца на приз."));
                 sender.sendMessage(Colorize.hex("&d/tend forceStart &7- &fЗапустить scheduler моментально."));
+                sender.sendMessage(Colorize.hex("&d/tend forceEnd &7- &fЗавершить ивент в энде."));
                 sender.sendMessage(Colorize.hex("&d/tend reload &7- &fПерезагрузить плагин."));
                 return true;
                 // Идея себе на будущее, если не передумаю или не придумаю вариант лучше
@@ -62,48 +64,92 @@ public class AdminCommands implements CommandExecutor, TabCompleter {
                         plugin.loadStorage();
                         plugin.getTaskManager().startDragonCheck();
                         plugin.getTaskManager().startEggsLocationsChecking();
-                        sender.sendMessage("Config reloaded.");
+
+                        if (sender instanceof Player player) {
+                            player.sendTitle("§a✔ Config reloaded ✔", "");
+                            player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
+                        } else {
+                            sender.sendMessage("Config reloaded.");
+                        }
                     });
                     break;
                 }
                 case "open": {
                     if (args.length==1) {
                         plugin.getEvent().setEndPortalStatus(true);
-                        sender.sendMessage("End portal opened.");
+                        if (sender instanceof Player player) {
+                            player.sendTitle("§a✔ End portal opened. ✔", "");
+                            player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
+                        } else {
+                            sender.sendMessage("End portal opened.");
+                        }
                         break;
                     }
                     if (args.length==2) {
                         plugin.getEvent().start(Integer.parseInt(args[1]));
-                        sender.sendMessage("End portal opened for "+ args[1] + " seconds.");
+                        if (sender instanceof Player player) {
+                            player.sendTitle("§a✔ End portal opened. ✔", "End portal opened for" + args[1] + "seconds.");
+                            player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
+                        } else {
+                            sender.sendMessage("End portal opened for "+ args[1] + " seconds.");
+                        }
                     }
                     break;
                 }
                 case "close": {
                     if (args.length==1) {
                         plugin.getEvent().setEndPortalStatus(false);
-                        for (Player players : Bukkit.getOnlinePlayers()) {
-                            if (players.getWorld().getName().equalsIgnoreCase("world_the_end")) {
-                                players.teleport(deserializeLocation(config.getEndCloseTeleport(), plugin));
-                            }
+                        if (sender instanceof Player player) {
+                            player.sendTitle("§c✔ End portal closed ✔", "");
+                            player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
+                        } else {
+                            sender.sendMessage("End portal closed");
                         }
-                        sender.sendMessage("End portal closed.");
+                        break;
+                    }
+                    break;
+                }
+                case "forceend": {
+                    if (args.length==1) {
+                        plugin.getEvent().setTimer(0);
+                        if (sender instanceof Player player) {
+                            player.sendTitle("§c✔ Event was ended ✔", "");
+                            player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
+                        } else {
+                            sender.sendMessage("Event was ended.");
+                        }
                         break;
                     }
                     break;
                 }
                 case "enabletrading": {
                     plugin.getEvent().setTradingStatus(true);
-                    sender.sendMessage("Trading enabled.");
+                    if (sender instanceof Player player) {
+                        player.sendTitle("§a✔ Trading enabled ✔", "");
+                        player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
+                    } else {
+                        sender.sendMessage("Trading enabled.");
+                    }
                     break;
                 }
                 case "disabletrading": {
                     plugin.getEvent().setTradingStatus(false);
-                    sender.sendMessage("Trading disabled.");
+                    if (sender instanceof Player player) {
+                        player.sendTitle("§c✔ Trading disabled ✔", "");
+                        player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
+                    } else {
+                        sender.sendMessage("Trading disabled.");
+                    }
                     break;
                 }
                 case "forcestart": {
                     plugin.getSchedulerHandler().forceStart();
-                    sender.sendMessage("Force started.");
+                    if (sender instanceof Player player) {
+                        player.sendTitle("§a✔ Force started ✔", "");
+                        player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
+                    } else {
+                        sender.sendMessage("Force started.");
+                    }
                     break;
                 }
             }
@@ -125,6 +171,7 @@ public class AdminCommands implements CommandExecutor, TabCompleter {
                 completions.add("enableTrading");
                 completions.add("disableTrading");
                 completions.add("reload");
+                completions.add("forceEnd");
                 completions.add("forceStart");
             }
         }

@@ -12,6 +12,7 @@ import org.bukkit.entity.Player;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 
 import static me.jetby.treexend.tools.LocationHandler.deserializeLocation;
@@ -42,21 +43,24 @@ public class SchedulerHandler {
         calculateTimeToStart();
 
         runner.startTimer(() -> {
+
+            for (int i = 0; i < scheduler.getPreStartTimes().size(); i++) {
+                int timeBefore = scheduler.getPreStartTimes().get(i);
+                if (timeBefore==getSecondsUntilStart()) {
+                    List<String> preStartActions = new ArrayList<>(scheduler.getPreStartActions());
+                    preStartActions.replaceAll(s -> PlaceholderAPI.setPlaceholders(null, s));
+                    plugin.getActions().execute(preStartActions);
+                    break;
+                }
+            }
+
             long currentTime = System.currentTimeMillis() / 1000;
             if (currentTime >= time_to_start) {
                 startEvent();
                 calculateTimeToStart();
                 task = runner.getTaskdId();
             }
-            for (int i = 0; i < scheduler.getPreStartTimes().size(); i++) {
-                int timeBefore = scheduler.getPreStartTimes().get(i);
-                if (timeBefore==getSecondsUntilStart()) {
-                    List<String> preStartActions = scheduler.getPreStartActions();
-                    preStartActions.replaceAll(s -> PlaceholderAPI.setPlaceholders(null, s));
-                    plugin.getActions().execute(preStartActions);
-                }
-            }
-        }, 0, 20);
+        }, 0, 20L);
     }
 
     private void calculateTimeToStart() {
@@ -111,6 +115,7 @@ public class SchedulerHandler {
         runner.startTimer(() -> {
             if (plugin.getEvent().getTimer() <= 0) {
                 plugin.getActions().execute(scheduler.getOnEnd());
+                runner.cancelTask(runner.getTaskdId());
             }
         }, 0, 20L);
     }

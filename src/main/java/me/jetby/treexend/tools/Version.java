@@ -9,6 +9,8 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Version implements Listener {
     private final Main plugin;
@@ -18,7 +20,6 @@ public class Version implements Listener {
     public Version(Main plugin) {
         this.plugin = plugin;
     }
-
 
     @EventHandler
     public void onJoin(PlayerJoinEvent e) {
@@ -38,6 +39,34 @@ public class Version implements Listener {
 
             }
         }
+    }
+
+    public List<String> getAlert() {
+        List<String> oldVersion = new ArrayList<>(List.of(
+                "",
+                "§7-------- §dTreexEnd §7--------",
+                "§d● §fВнимание, доступно обновление, пожалуйста обновите плагин.",
+                "§d● §7Ваша версия: §c" + getVersion() + " §7а последняя §a" + getLastVersion(),
+                "",
+                "§d● §fСкачать тут: §b" + getUpdateLink(),
+                "§7-------------------------",
+                ""
+        ));
+        List<String> lastVersion = new ArrayList<>(List.of(
+                "",
+                "§7-------- §dTreexEnd §7--------",
+                "§d● §7Версия плагин: §c" + getVersion(),
+                "",
+                "§d● §aВы используете последнюю версию ✔",
+                "",
+                "§7-------------------------",
+                ""
+        ));
+
+        if (!isLastVersion()) {
+            return oldVersion;
+        }
+        return lastVersion;
     }
 
     private String getRaw(String link) {

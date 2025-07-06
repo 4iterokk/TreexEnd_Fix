@@ -2,15 +2,10 @@ package me.jetby.treexend.configurations;
 
 import lombok.Getter;
 import me.jetby.treexend.Main;
+import me.jetby.treexend.tools.Logger;
 import me.jetby.treexend.tools.colorizer.Colorize;
-import org.bukkit.boss.BarColor;
-import org.bukkit.boss.BarStyle;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,6 +44,8 @@ public class Scheduler {
 
         timezone = configuration.getString("scheduler.timezone", "GMT+3");
 
+        Logger.info("scheduler.yml успешно загружен.");
+
     }
 
     private List<String> getOrDefaultList(FileConfiguration config, String path, List<String> defaultValue) {
@@ -60,22 +57,5 @@ public class Scheduler {
     private List<Integer> getOrDefaultInt(FileConfiguration config, String path, List<Integer> defaultValue) {
         List<Integer> list = config.getIntegerList(path);
         return list.isEmpty() ? defaultValue : list;
-    }
-
-    public FileConfiguration getFile(String path, String fileName) {
-        File file = new File(path, fileName);
-        if (!file.exists()) {
-            plugin.saveResource(fileName, false);
-        }
-        return YamlConfiguration.loadConfiguration(file);
-    }
-    public void save(String path, FileConfiguration config, String fileName) {
-        plugin.getRunner().runAsync(() -> {
-            try {
-                config.save(new File(path, fileName));
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-        });
     }
 }

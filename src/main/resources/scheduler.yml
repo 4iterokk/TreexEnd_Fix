@@ -18,6 +18,7 @@ scheduler:
     # [TRADING_ENABLE] Разрешить обмен яиц
     # [TRADING_DISABLE] Запретить обмен яиц
     # [CREATE_DRAGON] Заспавнить дракона
+    # [REMOVE_DRAGON] Удалить дракона если он живой
     # [SET_DURATION] Поставить время через которое выполнится onEnd
     #
     # [MESSAGE] Send text to player

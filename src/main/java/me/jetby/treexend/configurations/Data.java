@@ -3,13 +3,11 @@ package me.jetby.treexend.configurations;
 import lombok.Getter;
 import lombok.Setter;
 import me.jetby.treexend.Main;
+import me.jetby.treexend.tools.Logger;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.logging.Level;
-
-import static org.bukkit.Bukkit.getLogger;
 
 public class Data {
 
@@ -35,27 +33,21 @@ public class Data {
                 throw new RuntimeException(e);
             }}
         load();
-        debug("Файл data.yml успешно загружен.", Level.INFO);
+        Logger.info("data.yml успешно загружен.");
     }
 
     public void load() {
         endPortalStatusData = yaml.getBoolean("endPortalStatus", false);
         tradingStatusData = yaml.getBoolean("tradingStatus", false);
     }
-    private void debug(String text, Level level) {
-        if (yaml.getBoolean("debug", true)) {
-            getLogger().log(level, "[DEBUG] " + text);
-        }
-    }
+
     public void save() {
             yaml.set("endPortalStatus", endPortalStatusData);
             yaml.set("tradingStatus", tradingStatusData);
             try {
                 yaml.save(file);
             } catch (IOException e) {
-                debug("Не удалось сохранить файл (storage.yml)\n" + e, Level.SEVERE);
+                Logger.warn("Не удалось сохранить файл (storage.yml)\n" + e);
             }
-
-
     }
 }

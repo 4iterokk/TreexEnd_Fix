@@ -2,6 +2,7 @@ package me.jetby.treexend.configurations;
 
 import lombok.Getter;
 import me.jetby.treexend.Main;
+import me.jetby.treexend.tools.Logger;
 import me.jetby.treexend.tools.colorizer.Colorize;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
@@ -20,12 +21,11 @@ public class Config {
     private List<String> portalIsBlocked;
     private List<String> endIsClose;
     private List<String> tradingIsDisabled;
-    private List<String> dragonDamage;
-    private int dragonMessageDelay;
     private String placeholderTopFormat;
     private String dragonEggName;
     private List<String> dragonEggLore;
     private List<String> dragonEggPrizes;
+    private boolean antistack;
     private boolean listenersDropOnQuit;
     private boolean listenersPlace;
     private boolean dragonEggGlowing;
@@ -56,12 +56,46 @@ public class Config {
     private List<String> formattedTimeDays;
     private List<String> formattedTimeWeeks;
     private String formattedTimeFormat;
+
+    private List<String> actionsIfDragonAlive;
+    private int actionsIfDragonAliveDelay;
+    private List<String> actionsOnDeath;
+
+    private boolean growing;
+    private int price;
+    private int priceMax;
+    private int updateInterval;
+    private int updateAmount;
+
+    private boolean debug;
+
     private final Main plugin;
     public Config(Main plugin) {
         this.plugin = plugin;
     }
 
     public void load(FileConfiguration configuration) {
+
+        debug = configuration.getBoolean("debug", false);
+
+        growing = configuration.getBoolean("dragon-egg.priceGrowing.enable", false);
+        price = configuration.getInt("dragon-egg.priceGrowing.price", 0);
+        priceMax = configuration.getInt("dragon-egg.priceGrowing.price-max", 2500);
+        updateInterval = configuration.getInt("dragon-egg.priceGrowing.update-interval", 60);
+        updateAmount = configuration.getInt("dragon-egg.priceGrowing.update-amount", 5);
+
+        if (configuration.contains("dragon.IfDragonAlive")) {
+            actionsIfDragonAlive = configuration.getStringList("dragon.IfDragonAlive.actions");
+            actionsIfDragonAliveDelay = configuration.getInt("dragon.IfDragonAlive.delay", 60);
+        } else {
+            actionsIfDragonAlive = new ArrayList<>();
+        }
+
+        if (configuration.contains("dragon.onDeath")) {
+            actionsOnDeath = configuration.getStringList("dragon.onDeath");
+        } else {
+            actionsOnDeath = new ArrayList<>();
+        }
 
         barColorEgg = BarColor.valueOf(configuration.getString("BossBar.egg.Color", String.valueOf(BarColor.RED)));
         barStyleEgg = BarStyle.valueOf(configuration.getString("BossBar.egg.Style", String.valueOf(BarStyle.SOLID)));
@@ -72,7 +106,6 @@ public class Config {
         barStyleDuration = BarStyle.valueOf(configuration.getString("BossBar.duration.Style", String.valueOf(BarStyle.SOLID)));
         barDurationTitle = configuration.getString("BossBar.duration.title", "Энд закроется через %tend_scheduler_time_to_end% сек.");
         barDuration = configuration.getBoolean("BossBar.duration.enable", false);
-
 
         formattedTimeFormat = configuration.getString("formattedTime.format", "%weeks% %days% %hours% %minutes% %seconds%");
 
@@ -109,6 +142,7 @@ public class Config {
         portalIsBlocked = getOrDefaultList(configuration, "messages.portalIsBlocked", portalIsBlockedDefault);
 
         placeholderTopFormat = configuration.getString("placeholder-top-format", "x: %x%, y: %y%, z: %z%");
+        antistack = configuration.getBoolean("dragon-egg.anti-stack", false);
         dragonEggName = configuration.getString("dragon-egg.name", "&dЯйцо дракона");
 
         List<String> dragonEggLoreDefault = new ArrayList<>(List.of(
@@ -157,9 +191,7 @@ public class Config {
                 "Игрок, занявший первое место, &#ebcd35&lполучит Яйцо дракона.",
                 ""
         ));
-        dragonDamage = getOrDefaultList(configuration, "messages.dragonDamage.message", dragonDamageDefault);
-
-        dragonMessageDelay = configuration.getInt("messages.dragonDamage.messageDelay", 60);
+        Logger.info("config.yml успешно загружен.");
     }
 
     private List<String> getOrDefaultList(FileConfiguration config, String path, List<String> defaultValue) {
