@@ -8,6 +8,7 @@ import me.jetby.treexend.tools.storage.EggPrices;
 import me.jetby.treexend.tools.storage.StorageType;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.Chest;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -15,6 +16,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -110,39 +112,57 @@ public final class TaskManager {
 
     public void startEggsLocationsChecking() {
         runner.startTimer(() -> {
-            for (Map.Entry<Location, EggPrices> entry : storage.getPriceCache().entrySet()) {
-                Location price_location = entry.getKey();
-                if (price_location.getBlock().getType() == Material.CHEST) continue;
-                storage.getPriceCache().remove(price_location);
-                if (config.isDebug()) {
-                    Logger.info("Локация "+price_location+" удалена");
+
+            List<Location> priceLocations = new ArrayList<>(storage.getPriceCache().keySet());
+            for (Location priceLocation : priceLocations) {
+                if (!priceLocation.getBlock().getType().equals(Material.CHEST)) {
+                    storage.getPriceCache().remove(priceLocation);
+                    if (config.isDebug()) {
+                        Logger.info("Локация " + priceLocation + " удалена");
+                    }
                 }
             }
-            for (Location location : storage.getLocationCache().keySet()) {
-                if (location.getWorld().isChunkLoaded(location.getBlockX() >> 4, location.getBlockZ() >> 4)) {
-                    Block block = location.getBlock();
 
-                    if (block.getType() != Material.CHEST) {
-                        storage.removeCache(location);
-                        continue;
-                    }
+            List<Location> locations = new ArrayList<>(storage.getLocationCache().keySet());
+            for (Location location : locations) {
+                World world = location.getWorld();
+                int chunkX = location.getBlockX() >> 4;
+                int chunkZ = location.getBlockZ() >> 4;
 
-                    Chest chest = (Chest) block.getState();
-                    boolean hasDragonEgg = false;
-                    for (ItemStack item : chest.getInventory().getContents()) {
-                        if (item != null && item.getType() == Material.DRAGON_EGG) {
-                            hasDragonEgg = true;
-                            break;
-                        }
-                    }
+                if (!world.isChunkLoaded(chunkX, chunkZ)) {
+                    continue;
+                }
 
-                    if (!hasDragonEgg) {
-                        storage.removeCache(location);
-                    }
+                Block block = location.getBlock();
 
+                if (!block.getType().equals(Material.CHEST)) {
+                    storage.removeCache(location);
+                    continue;
+                }
+
+                if (!hasDragonEggInChest(location)) {
+                    storage.removeCache(location);
                 }
             }
-        }, 0L, 3 * 20);
+        }, 20L * 10, 20L * 10);
+    }
+
+    private boolean hasDragonEggInChest(Location location) {
+        BlockState state = location.getBlock().getState();
+        if (!(state instanceof Chest)) {
+            return false;
+        }
+
+        Chest chest = (Chest) state;
+        Inventory inventory = chest.getInventory();
+
+        for (int i = 0; i < inventory.getSize(); i++) {
+            ItemStack item = inventory.getItem(i);
+            if (item != null && item.getType() == Material.DRAGON_EGG) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

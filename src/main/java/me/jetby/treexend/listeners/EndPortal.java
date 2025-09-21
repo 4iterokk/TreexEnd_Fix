@@ -35,7 +35,10 @@ public class EndPortal implements Listener {
     public void onJoin(PlayerJoinEvent e) {
         if (event.isEndPortalStatus()) return;
         if (e.getPlayer().hasPermission("treexend.tpbypass")) return;
-        e.getPlayer().teleport(LocationHandler.deserializeLocation(config.getEndCloseTeleport(), plugin));
+
+        if (e.getPlayer().getWorld().getEnvironment() == World.Environment.THE_END) {
+            e.getPlayer().teleport(LocationHandler.deserializeLocation(config.getEndCloseTeleport(), plugin));
+        }
     }
 
     @EventHandler
